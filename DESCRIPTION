@@ -1,0 +1,14 @@
+Package: rNodal.oilwells
+Type: Package
+Title: Transforming Oil Wells Raw Data into Datasets for Statistical Analysis
+Version: 0.1.0
+Author: Alfonso R. Reyes <alfonso.reyes@oilgainsanalytics.com>
+Maintainer: Alfonso R. Reyes <alfonso.reyes@oilgainsanalytics.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 0.12.12)
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 6.0.1

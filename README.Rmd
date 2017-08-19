@@ -151,6 +151,10 @@ knitr::include_graphics("https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAvDAAAAJGM
 
 Writing project or analysis documentation this way is not only useful but a time saver. You don't need to type your text in Word, for instance, and copy-paste the calculations or plots in the document afterwards. And most important of all, you reduce the chance of errors. You will see for yourself later when we mix calculations inside and together with the text.
 
+## Some well data anatomy
+
+
+
 
 ## Some data introspection
 
@@ -189,17 +193,102 @@ str(myXl)
 class(myXl)
 ```
 
-## Incomplete data
-```{r}
-summary(myXl$Wellname)
-```
-
+## Misstyped data
 
 ```{r}
 unique(myXl$Wellname)
 ```
 
+## Pattern detection
 ```{r rows.print=15}
+# using a template to find out which well names do not follow a pattern
 myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+The result is that we get the observations (rows) that have incorrect well names. They are 11 instances.
+This is much better than visually inspecting them in a spreadsheet, isn't it?
+
+What are the type of offences?
+
+* Incorrect well number: PSCO-M0007-TS, PSCO-M0026-TS
+* Platform omitted: PSCO-027-TS
+* Platform in lowercase: PSCO-r015-LS, PSCO-m016-LS
+* Incorrect field name: PiSCO-R009-SS, PISCO-R027-LS
+* Incorrect completion type: PSCO-R022-T, PSCO-Q019-L, PSCO-Q001-S
+* Extra spaces in the name: PSCO-S019 -LS
+
+
+## Fix the well name
+
+Some can be fixed manually and other can be done automatically with a script.
+In our particular case we only have 100 wells but what about if we have 1000, or 5000? Doin,g it manually is not an option. Some are quickyly fixable some others are more challenging. Let's start by the easier ones.
+
+Always go from the more general to the more particular.
+
+```{r}
+# lowercase to uppercase
+  myXl$Wellname <- toupper(myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+```{r}
+# removing spaces
+  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+```{r}
+# complete the completion type
+# We have three completion type: SS, LS and TS
+
+  myXl$Wellname <- gsub("-L$", "-LS", myXl$Wellname)    # the dollar sign at the end, means that 
+  myXl$Wellname <- gsub("-S$", "-SS", myXl$Wellname)    # we are checking at the end of the string
+  myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+
+```
+
+Those were the easy ones.
+
+
+
+
+### Company
+
+```{r}
+myXl[!grepl("Oil Gains Co.", myXl$Company),]
+# We don't get any return. All the company names are the same. Cool!
+```
+
+### Analyst
+```{r}
+summary(myXl$Analyst)
+unique(myXl$Analyst)
+
+```
+
+```{r}
+operators <- c("Aida", "Americo", "Andrew", "Camden", "Ibironke", "Kai", "Norman", "Rodrigo", "Sam", "Tom", "Vivek")
+
+myXl$Analyst %in% operators
+```
+
+```{r}
+myXl[!myXl$Analyst %in% operators, ]
+```
+
+### Who is the platform operator?
+
+```{r}
+# Who is the platform operator?
+table(myXl$Analyst, myXl$Platform)
 ```
 

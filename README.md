@@ -15,6 +15,8 @@ You can install rNodal.oilwells from github with:
 devtools::install_github("f0nzie/rNodal.oilwells")
 ```
 
+Soon to be presented to CRAN.
+
 Data Science for Petroleum Engineering - Part 5: "Transforming Excel well raw data into datasets.
 =================================================================================================
 
@@ -118,3 +120,15 @@ Another thing that you will notice in this lecture is that we can combine text, 
 <img src="https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAvDAAAAJGMwYzIyODg4LTRkOTMtNDgyOS1hYjk1LTUwMjczNjc1OGI0OA.jpg" width="600px" />
 
 Writing project or analysis documentation this way is not only useful but a time saver. You don't need to type your text in Word, for instance, and copy-paste the calculations or plots in the document afterwards. And most important of all, you reduce the chance of errors. You will see for yourself later when we mix calculations inside and together with the text.
+
+Some data introspection
+-----------------------
+
+Let's use some R functions to find out more about our data.
+
+``` r
+dim(myXl)
+#> [1] 100  51
+```
+
+Our table has 100 rows and \`r dim(myXl)\[2\]

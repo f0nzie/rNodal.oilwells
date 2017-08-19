@@ -109,3 +109,12 @@ Now, if you double-click on the myXL object R automatically will open a data vie
 <img src="https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAuBAAAAJGRjZWM4OWNiLWY1NDMtNDZhMS04OWE3LWY1ZjZiYWM3ZjI3MA.jpg" width="600px" />
 
 You can get the raw data file `oilfield_100w_raw_data.xlsx` via [GitHub](https://github.com/f0nzie/rNodal.oilwells/blob/master/inst/extdata/oilfield_100w_raw_data.xlsx). Download the file and start practicing opening the file and loading it in R.
+
+The notebook is your friend
+---------------------------
+
+Another thing that you will notice in this lecture is that we can combine text, math, equations and results in the same document. As a matter of fact, I am writing all of this in a R Markdown document or notebook. You can see it as the README of the package in GitHub here. It is the file README.md in green highlight.
+
+<img src="https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAvDAAAAJGMwYzIyODg4LTRkOTMtNDgyOS1hYjk1LTUwMjczNjc1OGI0OA.jpg" width="600px" />
+
+Writing project or analysis documentation this way is not only useful but a time saver. You don't need to type your text in Word, for instance, and copy-paste the calculations or plots in the document afterwards. And most important of all, you reduce the chance of errors. You will see for yourself later when we mix calculations inside and together with the text.

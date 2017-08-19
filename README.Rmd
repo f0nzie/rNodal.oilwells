@@ -26,6 +26,8 @@ You can install rNodal.oilwells from github with:
 devtools::install_github("f0nzie/rNodal.oilwells")
 ```
 
+Soon to be presented to CRAN.
+
 # Data Science for Petroleum Engineering - Part 5: "Transforming Excel well raw data into datasets.
 
 One of the big challenges of this new era of data science. machine learning and artificial intelligence is getting unhooked from the habit of working with spreadsheets. They have been around for 30+ years and were awesome. But spreadsheets - or worksheets - do not scale well with massive amounts of data; or continuous streams of data; or other characteristics that are key for taking good and sound decisions such as **reproducibility**. Besides, spreadsheets have not kept with the times so we have seen the plotting capabilities getting very much behind of other software.
@@ -138,6 +140,7 @@ knitr::include_graphics("https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAuBAAAAJGR
 
 You can get the raw data file `oilfield_100w_raw_data.xlsx` via [GitHub](https://github.com/f0nzie/rNodal.oilwells/blob/master/inst/extdata/oilfield_100w_raw_data.xlsx). Download the file and start practicing opening the file and loading it in R.
 
+
 ## The notebook is your friend
 
 Another thing that you will notice in this lecture is that we can combine text, math, equations and results in the same document. As a matter of fact, I am writing all of this in a R Markdown document or notebook. You can see it as the README of the package in GitHub here. It is the file README.md in green highlight.
@@ -147,5 +150,7 @@ knitr::include_graphics("https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAvDAAAAJGM
 ```
 
 Writing project or analysis documentation this way is not only useful but a time saver. You don't need to type your text in Word, for instance, and copy-paste the calculations or plots in the document afterwards. And most important of all, you reduce the chance of errors. You will see for yourself later when we mix calculations inside and together with the text.
+
+
 
 

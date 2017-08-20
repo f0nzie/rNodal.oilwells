@@ -115,7 +115,8 @@ Once the package is installed we proceed to read the raw data:
 library(xlsx)
 
 # read the raw data
-myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 1)
+myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 
+                  sheetIndex = 1, stringsAsFactors=FALSE)
 ```
 
 I placed the raw data file under the directory ./inst/extdata, that why the long path. In R packages is very usual to place the raw data under this folder.
@@ -256,8 +257,101 @@ Always go from the more general to the more particular.
 
 ```
 
-Those were the easy ones.
+Those were the easy ones. There are 5 more to go.
 
+```{r}
+# detect well names that are not named as PSCO-
+  myXl[!grepl("^PSCO-", myXl$Wellname), ]        # the ^ character means look at the start of the string
+```
+
+### 
+
+```{r}
+# replace any characters before the first dash
+  x <- myXl$Wellname
+
+  pattern <- "^[^-]+"
+  repl_with <- "PSCO"
+
+  myXl$Wellname <- gsub(pattern, repl_with, x, perl = TRUE)
+
+  # show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+Alright. We corrected the field name in the well name. 
+There are still three more wells to go which problems are:
+
+    PSCO-M0007-TS  long well number. It should be maximum of 3 digits
+    PSCO-027-TS    missing platform number
+    PSCO-M0026-TS  long well number. It should be maximum of 3 digits
+
+
+### correcting longer well number (digits)
+
+```{r}
+# find wells with longer well number
+x <- myXl$Wellname
+myXl[grepl("[0-9]{4}-", x, perl=TRUE), ]     # 
+```
+
+
+```{r}
+library(stringr)
+x <- myXl$Wellname
+
+allIndices <- 1:length(x)
+incorrectIndices <- grep("[0-9]{4}-", x, perl=TRUE)
+incorrectIndices
+
+xt <- strsplit(x[incorrectIndices], "-")
+fn <- unlist(lapply(xt, "[", 1))
+xl <- unlist(lapply(xt, "[", 2))
+ct <- unlist(lapply(xt, "[", 3))
+
+
+first <- str_sub(xl, 1, 1)                 # extract the 1st character
+xu <- unlist(str_extract_all(xl, "\\d+"))  # extract the numeric part only
+xn <- as.numeric(xu) / 1000 * 1000
+xp <- str_pad(xn, pad = "0", width = 3)
+wn <- paste0(first, xp)
+corrected <- paste(fn, wn, ct, sep = "-")
+
+myXl$Wellname[incorrectIndices] <- corrected
+
+  # show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+
+```
+
+### correct the platform in the well name
+
+```{r}
+x <- myXl$Wellname
+# pick up the well index
+incorrectIndices <- !grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", x)
+# incorrectIndices
+
+xt <- strsplit(x[incorrectIndices], "-")
+
+fn <- unlist(lapply(xt, "[", 1))
+xl <- unlist(lapply(xt, "[", 2))
+ct <- unlist(lapply(xt, "[", 3))
+
+xl 
+platform <- myXl$Platform[incorrectIndices]
+
+wn <- paste0(platform, xl)
+
+corrected <- paste(fn, wn, ct, sep = "-")
+corrected
+
+myXl$Wellname[incorrectIndices] <- corrected
+
+myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+
+# finished the corrections of the well name
+```
 
 
 
@@ -269,6 +363,7 @@ myXl[!grepl("Oil Gains Co.", myXl$Company),]
 ```
 
 ### Analyst
+
 ```{r}
 summary(myXl$Analyst)
 unique(myXl$Analyst)
@@ -276,19 +371,233 @@ unique(myXl$Analyst)
 ```
 
 ```{r}
-operators <- c("Aida", "Americo", "Andrew", "Camden", "Ibironke", "Kai", "Norman", "Rodrigo", "Sam", "Tom", "Vivek")
+operators <- c("Aida", "Americo", "Andrew", "Camden", "Ibironke", "Kai", "Norman", 
+               "Rodrigo", "Sam", "Tom", "Vivek")
 
-myXl$Analyst %in% operators
+# incorrect assignements
+tocorrectIndices <- which(!myXl$Analyst %in% operators)
+myXl[tocorrectIndices, ]
 ```
+
+We can correct manually:
 
 ```{r}
-myXl[!myXl$Analyst %in% operators, ]
+myXl$Analyst[9] <- "Ibironke"
+myXl$Analyst[c(31,32,32,33)] = "Rodrigo"
+myXl$Analyst[c(78,83)] = "Andrew"
+myXl$Analyst[c(37)] = "Tom"
+
+# verify if we have incorrect assignements
+  tocorrectIndices <- which(!myXl$Analyst %in% operators)
+  myXl[tocorrectIndices, ]
+
 ```
+
+There is only one observation left, the one with NA.
+We will have to cross-reference it.
+Let's find out who are the platform operators.
 
 ### Who is the platform operator?
-
+In our particular case, who is the platform operator in "S"?
 ```{r}
 # Who is the platform operator?
-table(myXl$Analyst, myXl$Platform)
+  table(myXl$Analyst, myXl$Platform)
+```
+
+For platform S, it could be Andrew or Camden.
+
+```{r}
+myXl[myXl$Analyst %in% c("Andrew", "Camden"), ]
+```
+
+There is not a real pattern here. We will assign the well to Andrew, make a note. Then we make a call to confirm.
+
+```{r}
+myXl$Analyst[c(98)] = "Andrew"
+
+# verify if we have incorrect assignements
+  tocorrectIndices <- which(!myXl$Analyst %in% operators)
+  myXl[tocorrectIndices, ]
+
+  # Analyst is complete  
+```
+
+## Check the field
+
+```{r}
+unique(myXl$Field)
+# we have two additional keywords for the field that have to be corrected.
+# let's find out what indices they have
+```
+
+```{r}
+# verify for bad names in field
+grep("[^PISCO]", myXl$Field)      # which means those which are not named like PISCO
+```
+
+```{r}
+# which row index has NAs in it
+myXl[which(is.na(myXl$Field)), ]
+```
+
+
+```{r}
+# make the correction
+myXl$Field[c(7,12,27)] <- "PISCO"
+
+# verify for bad names in field
+  grep("[^PISCO]", myXl$Field)    # which means those which are not named like PISCO
+  
+# which row index has NAs in it
+myXl[which(is.na(myXl$Field)), ]  
+  
+# it has been fixed now  
+```
+
+
+
+## Add a column for the Completion Type
+To close this chapter, let's add a c new variable (column) where we have only the Completion Type.
+We can take advantage that the last two characters of the well name is the completion type.
+
+    nchar(): number of character of the string
+
+```{r}
+substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))
+```
+
+
+```{r}
+# assign the completion type to a new column
+myXl$Completion <- substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))
+
+```
+
+
+## Location
+```{r}
+myXl$Location
+```
+
+```{r}
+# we can test it by not following pattern or those which are NA
+pattern <- "[MQRS][0-9]{3}"
+
+# test that Location follows the pattern
+grep(pattern, myXl$Location, invert = TRUE)
+# there is one non-compliant index 
+# which matches what we see above
+```
+
+```{r}
+myXl$Location <- substr(myXl$Wellname[19], nchar(myXl$Wellname[19])-6, nchar(myXl$Wellname[19])-3)
+```
+
+
+```{r}
+# test that Location follows the pattern
+grep(pattern, myXl$Location, invert = TRUE)
+# we are done here
+```
+
+
+## Platform
+
+```{r}
+# verify which indices do not comply for platform
+grep("[MQRS]", myXl$Platform, invert = TRUE)
+# only two not following
+# since the well name is already corrected, let's use it
+```
+
+```{r}
+myXl$Platform <- substr(myXl$Wellname, nchar(myXl$Wellname)-6, nchar(myXl$Wellname)-6)
+
+# verify which indices do not comply for platform
+grep("[MQRS]", myXl$Platform, invert = TRUE)
+# we are done here
+```
+
+
+
+
+
+
+```{r}
+# load the library xlsx
+library(xlsx)
+
+# read the raw data
+myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 1)
+
+# lowercase to uppercase
+  myXl$Wellname <- toupper(myXl$Wellname)
+
+
+
+# removing spaces
+  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
+
+  
+  
+
+# complete the completion type
+# We have three completion type: SS, LS and TS
+
+  myXl$Wellname <- gsub("-L$", "-LS", myXl$Wellname)    # the dollar sign at the end, means that 
+  myXl$Wellname <- gsub("-S$", "-SS", myXl$Wellname)    # we are checking at the end of the string
+  myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+```{r}
+# remove non compliant field names
+  # myXl$Wellname <- gsub("(^[PSCO])", "PSCO", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+
+```{r}
+# test
+test <- c("PiSCO", "pISCO", "PSCO")
+
+gsub("^(PSCO)", "PSCO", test)
+
+```
+
+
+
+```{r}
+# show wells that do have incorrect field name
+myXl[!grepl("^PSCO-", myXl$Wellname), ]
+```
+
+```{r}
+# same but saving the data frame
+df <- myXl
+pattern <- "^(?!PSCO)"
+myXl[grepl(pattern, myXl$Wellname, perl = TRUE), ]
+```
+
+
+```{r}
+# attempt to replace PISCO. nOT WORKING
+df <- myXl
+pattern <- "(?!PSCO+)"
+df$Wellname <- gsub(pattern, "\\1", df$Wellname, perl = TRUE)
+
+df[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
+```
+
+
+```{r}
+# show wellls that do not comply with well naming pattern
+df[!grepl("PSCO-[M,O,P,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
 ```
 

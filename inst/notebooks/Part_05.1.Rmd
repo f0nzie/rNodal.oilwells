@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(xlsx)
 
 # read the raw data
-myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 
+myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 
                   sheetIndex = 1, stringsAsFactors=FALSE)
 ```
 
@@ -421,83 +421,3 @@ myXl$Platform <- substr(myXl$Wellname, nchar(myXl$Wellname)-6, nchar(myXl$Wellna
 grep("[MQRS]", myXl$Platform, invert = TRUE)
 # we are done here
 ```
-
-
-```{r}
-# load the library xlsx
-library(xlsx)
-
-# read the raw data
-myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 1)
-
-# lowercase to uppercase
-  myXl$Wellname <- toupper(myXl$Wellname)
-
-
-
-# removing spaces
-  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
-
-  
-  
-
-# complete the completion type
-# We have three completion type: SS, LS and TS
-
-  myXl$Wellname <- gsub("-L$", "-LS", myXl$Wellname)    # the dollar sign at the end, means that 
-  myXl$Wellname <- gsub("-S$", "-SS", myXl$Wellname)    # we are checking at the end of the string
-  myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
-
-# show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-```
-
-
-```{r}
-# remove non compliant field names
-  # myXl$Wellname <- gsub("(^[PSCO])", "PSCO", myXl$Wellname)
-
-# show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-```
-
-
-
-```{r}
-# test
-test <- c("PiSCO", "pISCO", "PSCO")
-
-gsub("^(PSCO)", "PSCO", test)
-
-```
-
-
-
-```{r}
-# show wells that do have incorrect field name
-myXl[!grepl("^PSCO-", myXl$Wellname), ]
-```
-
-```{r}
-# same but saving the data frame
-df <- myXl
-pattern <- "^(?!PSCO)"
-myXl[grepl(pattern, myXl$Wellname, perl = TRUE), ]
-```
-
-
-```{r}
-# attempt to replace PISCO. nOT WORKING
-df <- myXl
-pattern <- "(?!PSCO+)"
-df$Wellname <- gsub(pattern, "\\1", df$Wellname, perl = TRUE)
-
-df[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
-```
-
-
-```{r}
-# show wellls that do not comply with well naming pattern
-df[!grepl("PSCO-[M,O,P,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
-```
-

@@ -14,9 +14,11 @@ myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx",
 Data introspection
 ------------------
 
-Let's print 6 rows of data with the function head().
+Let's print 6 rows of data with the function head(). You will see a long printing. We will fix this in a minute. Read on.
 
 ``` r
+# the function head() prints the first 6 rows
+# to print the last 6 rows use tail()
 print(head(myXl))
 #>        Wellname       Company Analyst Field Location Platform Fluid
 #> 1  PSCO-M005-TS Oil Gains Co.    Aida PISCO  M005-TS        M     0
@@ -162,7 +164,7 @@ print(head(myXl))
 
 It looks pretty long. Let's try with a package that adds better printing capabilities: `tibble`.
 
-Install it with install.packages("tibble")
+Install it with `install.packages("tibble")`
 
 ``` r
 library(tibble)      # load the package
@@ -195,7 +197,7 @@ as_tibble(myXl)      # convert the data frame to a tibble
 #> #   WT_GPRES <chr>, WT_RESPRES <chr>, ProsperFilename <chr>
 ```
 
-It looks much better.
+Now it looks much better.
 
 Let's use some R functions to find out more about our data.
 

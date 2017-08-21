@@ -161,7 +161,7 @@ Writing project or analysis documentation this way is not only useful but a time
 ## Some data introspection
 
 ```{r rows.print=25}
-print(myXl)
+print(head(myXl))
 ```
 
 

@@ -121,3 +121,44 @@ Another thing that you will notice in this lecture is that we can combine text, 
 <img src="https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAvDAAAAJGMwYzIyODg4LTRkOTMtNDgyOS1hYjk1LTUwMjczNjc1OGI0OA.jpg" width="600px" />
 
 Writing project or analysis documentation this way is not only useful but a time saver. You don't need to type your text in Word, for instance, and copy-paste the calculations or plots in the document afterwards. And most important of all, you reduce the chance of errors. You will see for yourself later when we mix calculations inside and together with the text.
+
+What's next?
+============
+
+-   Data introspection
+
+-   Summary
+
+-   Finding and filling missing data
+
+-   Grouping, categorizing the data
+
+-   Analysis and plotting of the numeric data
+
+-   Converting the well text data that is bar-separated to columnar format
+
+-   Join tables by a key variable
+
+-   Well naming convention
+
+Before we begin some tips about the well naming that is used for classification. We will use this later for summarizing data such as how many wells per platform, what type of completion has the best producers, what is the platform with wells with high watercut, etc.
+
+As the figure explains, the first four letters is the abbreviated name of the field. Since we are working with one field only in this lecture, all of the wells should have the same field name. After the dash, next is the platform. It is only one letter. There are four platforms M, Q, R and S. They should be in uppercase. Next after that is thee 3 digit well number. Not four or two or one; it is 3-digit number. Then a dash, and a two-letter completion type. Because we are using gas lift wells and have two producing zones we require dual completions, one with the long string (LS) and the other with the short string (SS). Wells with a unique tubing string are marked (TS).
+
+<img src="https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAuhAAAAJDQ2NDZjYmE3LTBlZWEtNGMzZC05OWIwLWIzZGI2ZmQzNzNlNw.jpg" width="600px" />
+
+So, our first task is to ensure the wells are named correctly. That is essential for the classification and analysis that we will perform later. Likely what we are going to find is:
+
+-   Typos
+
+-   Combination of uppercase and lowercase
+
+-   Omitting the dashes; omitting letters
+
+-   Using arbitrary well numbers instead of 3-digit; or
+
+-   Absence of well name at all
+
+-   We will address this using R.
+
+Next, is 5.1 Data introspection

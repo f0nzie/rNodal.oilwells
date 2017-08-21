@@ -173,3 +173,24 @@ Before we begin some tips about the well naming that is used for classification.
 
 As the figure explains, the first four letters is the abbreviated name of the field. Since we are working with one field only in this lecture, all of the wells should have the same field name. After the dash, next is the platform. It is only one letter. There are four platforms M, Q, R and S. They should be in uppercase. Next after that is thee 3 digit well number. Not four or two or one; it is 3-digit number. Then a dash, and a two-letter completion type. Because we are using gas lift wells and have two producing zones we require dual completions, one with the long string (LS) and the other with the short string (SS). Wells with a unique tubing string are marked (TS).
 
+
+```{r, out.width = "600px", echo=FALSE}
+knitr::include_graphics("https://media.licdn.com/mpr/mpr/AAEAAQAAAAAAAAuhAAAAJDQ2NDZjYmE3LTBlZWEtNGMzZC05OWIwLWIzZGI2ZmQzNzNlNw.jpg")
+```
+
+So, our first task is to ensure the wells are named correctly. That is essential for the classification and analysis that we will perform later. Likely what we are going to find is:
+
+* Typos
+
+* Combination of uppercase and lowercase
+
+* Omitting the dashes; omitting letters
+
+* Using arbitrary well numbers instead of 3-digit; or
+
+* Absence of well name at all
+
+* We will address this using R.
+
+
+Next, is 5.1 Data introspection

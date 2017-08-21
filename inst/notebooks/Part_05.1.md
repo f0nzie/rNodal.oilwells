@@ -1,5 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+5.1 Data Introspection
+======================
+
+This section is about getting familiar with our data. We will be using functions to know the size of our table or data frame, the names of the columns or variables, the staructure of the data and the type of data for each of the variables or colummns.
+
+### Read the raw data again
+
 ``` r
 # load the library xlsx
 library(xlsx)
@@ -8,11 +15,10 @@ library(xlsx)
 
 # read the raw data
 myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 
-                  sheetIndex = 1, stringsAsFactors=FALSE)
+                  sheetIndex = 1, stringsAsFactors = FALSE)
 ```
 
-Data introspection
-------------------
+### Printing the head
 
 Let's print 6 rows of data with the function head(). You will see a long printing. We will fix this in a minute. Read on.
 
@@ -171,31 +177,55 @@ Install it with `install.packages("tibble")`
 
 ``` r
 library(tibble)      # load the package
-as_tibble(myXl)      # convert the data frame to a tibble
-#> # A tibble: 100 x 51
-#>         Wellname       Company  Analyst Field Location Platform Fluid
-#>            <chr>         <chr>    <chr> <chr>    <chr>    <chr> <dbl>
-#>  1  PSCO-M005-TS Oil Gains Co.     Aida PISCO  M005-TS        M     0
-#>  2 PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#>  3  PSCO-M004-LS Oil Gains Co.     Aida PISCO  M004-LS        M     0
-#>  4  PSCO-M008-TS Oil Gains Co.     Aida PISCO  M008-TS        M     0
-#>  5  PSCO-M010-SS Oil Gains Co.     Aida PISCO  M010-SS        M     0
-#>  6  PSCO-M006-TS Oil Gains Co.     Aida PISCO  M006-TS        M     0
-#>  7  PSCO-m016-LS Oil Gains Co. Ibironke  <NA>  M016-LS        M     0
-#>  8  PSCO-M018-LS Oil Gains Co. Ibironke PISCO  M018-LS        M     0
-#>  9  PSCO-M021-LS Oil Gains Co.  Ibironk PISCO  M021-LS        M     0
-#> 10  PSCO-M017-LS Oil Gains Co. Ibironke PISCO  M017-LS        M     0
-#> # ... with 90 more rows, and 44 more variables: WellType <dbl>,
-#> #   AL_Method <dbl>, Completion <dbl>, SandControl <dbl>, WT_COUNT <dbl>,
-#> #   PVT_GOR <dbl>, PVT_API <dbl>, PVT_SG_gas <dbl>,
-#> #   PVT_WaterSalinity <dbl>, PVT_H2S <dbl>, PVT_CO2 <dbl>,
-#> #   PVT_PB_CORR <dbl>, PVT_VISC_CORR <dbl>, PVT_BPTEMP <dbl>,
-#> #   PVT_BPPRES <dbl>, VLP_CORR <dbl>, IPR_CORR <dbl>, IPR_RESPRES <dbl>,
-#> #   IPR_RESTEMP <dbl>, IPR_TOTGOR <dbl>, IPR_WC <dbl>, IPR_VOGELRT <dbl>,
-#> #   IPR_VOGELPRES <dbl>, IPR_PI <dbl>, GEO_THMD <chr>, GEO_THTEMP <chr>,
-#> #   GL_method <dbl>, GL_ArrayMandrels <chr>, GL_Vdepth <dbl>,
-#> #   GL_GSG <dbl>, GL_CO2 <dbl>, WT_DATE <chr>, WT_THT <chr>,
-#> #   WT_LIQRT <chr>, WT_WC <chr>, WT_THP <chr>, WT_GOR <chr>,
+myXl <- as_tibble(myXl)      # convert the data frame to a tibble
+```
+
+``` r
+head(myXl)
+#> # A tibble: 6 x 51
+#>        Wellname       Company Analyst Field Location Platform Fluid
+#>           <chr>         <chr>   <chr> <chr>    <chr>    <chr> <dbl>
+#> 1  PSCO-M005-TS Oil Gains Co.    Aida PISCO  M005-TS        M     0
+#> 2 PSCO-M0007-TS Oil Gains Co.    Aida PISCO  M007-TS        M     0
+#> 3  PSCO-M004-LS Oil Gains Co.    Aida PISCO  M004-LS        M     0
+#> 4  PSCO-M008-TS Oil Gains Co.    Aida PISCO  M008-TS        M     0
+#> 5  PSCO-M010-SS Oil Gains Co.    Aida PISCO  M010-SS        M     0
+#> 6  PSCO-M006-TS Oil Gains Co.    Aida PISCO  M006-TS        M     0
+#> # ... with 44 more variables: WellType <dbl>, AL_Method <dbl>,
+#> #   Completion <dbl>, SandControl <dbl>, WT_COUNT <dbl>, PVT_GOR <dbl>,
+#> #   PVT_API <dbl>, PVT_SG_gas <dbl>, PVT_WaterSalinity <dbl>,
+#> #   PVT_H2S <dbl>, PVT_CO2 <dbl>, PVT_PB_CORR <dbl>, PVT_VISC_CORR <dbl>,
+#> #   PVT_BPTEMP <dbl>, PVT_BPPRES <dbl>, VLP_CORR <dbl>, IPR_CORR <dbl>,
+#> #   IPR_RESPRES <dbl>, IPR_RESTEMP <dbl>, IPR_TOTGOR <dbl>, IPR_WC <dbl>,
+#> #   IPR_VOGELRT <dbl>, IPR_VOGELPRES <dbl>, IPR_PI <dbl>, GEO_THMD <chr>,
+#> #   GEO_THTEMP <chr>, GL_method <dbl>, GL_ArrayMandrels <chr>,
+#> #   GL_Vdepth <dbl>, GL_GSG <dbl>, GL_CO2 <dbl>, WT_DATE <chr>,
+#> #   WT_THT <chr>, WT_LIQRT <chr>, WT_WC <chr>, WT_THP <chr>, WT_GOR <chr>,
+#> #   WT_GLIR <chr>, WT_DEPTH <chr>, WT_Enable <chr>, WT_GDEPTH <chr>,
+#> #   WT_GPRES <chr>, WT_RESPRES <chr>, ProsperFilename <chr>
+```
+
+``` r
+tail(myXl)
+#> # A tibble: 6 x 51
+#>        Wellname       Company  Analyst Field Location Platform Fluid
+#>           <chr>         <chr>    <chr> <chr>    <chr>    <chr> <dbl>
+#> 1  PSCO-S021-TS Oil Gains Co.   Camden PISCO  S021-TS        S     0
+#> 2  PSCO-S016-SS Oil Gains Co.   Camden PISCO  S016-SS        S     0
+#> 3  PSCO-S015-SS Oil Gains Co.   Camden PISCO  S015-SS        S     0
+#> 4  PSCO-S012-LS Oil Gains Co.     <NA> PISCO  S012-LS        S     0
+#> 5  PSCO-M001-TS Oil Gains Co.     Aida PISCO  M001-TS     <NA>     0
+#> 6 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
+#> # ... with 44 more variables: WellType <dbl>, AL_Method <dbl>,
+#> #   Completion <dbl>, SandControl <dbl>, WT_COUNT <dbl>, PVT_GOR <dbl>,
+#> #   PVT_API <dbl>, PVT_SG_gas <dbl>, PVT_WaterSalinity <dbl>,
+#> #   PVT_H2S <dbl>, PVT_CO2 <dbl>, PVT_PB_CORR <dbl>, PVT_VISC_CORR <dbl>,
+#> #   PVT_BPTEMP <dbl>, PVT_BPPRES <dbl>, VLP_CORR <dbl>, IPR_CORR <dbl>,
+#> #   IPR_RESPRES <dbl>, IPR_RESTEMP <dbl>, IPR_TOTGOR <dbl>, IPR_WC <dbl>,
+#> #   IPR_VOGELRT <dbl>, IPR_VOGELPRES <dbl>, IPR_PI <dbl>, GEO_THMD <chr>,
+#> #   GEO_THTEMP <chr>, GL_method <dbl>, GL_ArrayMandrels <chr>,
+#> #   GL_Vdepth <dbl>, GL_GSG <dbl>, GL_CO2 <dbl>, WT_DATE <chr>,
+#> #   WT_THT <chr>, WT_LIQRT <chr>, WT_WC <chr>, WT_THP <chr>, WT_GOR <chr>,
 #> #   WT_GLIR <chr>, WT_DEPTH <chr>, WT_Enable <chr>, WT_GDEPTH <chr>,
 #> #   WT_GPRES <chr>, WT_RESPRES <chr>, ProsperFilename <chr>
 ```
@@ -364,7 +394,7 @@ summary(myXl)
 ``` r
 # show the data type structure of the table
 str(myXl)
-#> 'data.frame':    100 obs. of  51 variables:
+#> Classes 'tbl_df', 'tbl' and 'data.frame':    100 obs. of  51 variables:
 #>  $ Wellname         : chr  "PSCO-M005-TS" "PSCO-M0007-TS" "PSCO-M004-LS" "PSCO-M008-TS" ...
 #>  $ Company          : chr  "Oil Gains Co." "Oil Gains Co." "Oil Gains Co." "Oil Gains Co." ...
 #>  $ Analyst          : chr  "Aida" "Aida" "Aida" "Aida" ...
@@ -421,7 +451,7 @@ str(myXl)
 ``` r
 # outr table is one of R data structures along with vectors, matrices, arrays and lists.
 class(myXl)
-#> [1] "data.frame"
+#> [1] "tbl_df"     "tbl"        "data.frame"
 ```
 
 ### data types: `typeof`

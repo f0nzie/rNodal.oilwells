@@ -13,7 +13,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+# 5.1 Data Introspection
 
+This section is about getting familiar with our data. We will be using functions to know the size of our table or data frame, the names of the columns or variables, the staructure of the data and the type of data for each of the variables or colummns.
+
+### Read the raw data again
 
 ```{r}
 # load the library xlsx
@@ -21,13 +25,12 @@ library(xlsx)
 
 # read the raw data
 myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 
-                  sheetIndex = 1, stringsAsFactors=FALSE)
+                  sheetIndex = 1, stringsAsFactors = FALSE)
 
 ```
 
+### Printing the head
 
-
-## Data introspection
 Let's print 6 rows of data with the function head(). You will see a long printing. We will fix this in a minute. Read on.
 
 ```{r rows.print=25}
@@ -46,8 +49,18 @@ Install it with `install.packages("tibble")`
 
 ```{r}
 library(tibble)      # load the package
-as_tibble(myXl)      # convert the data frame to a tibble
+myXl <- as_tibble(myXl)      # convert the data frame to a tibble
 ```
+
+```{r}
+head(myXl)
+```
+
+
+```{r}
+tail(myXl)
+```
+
 
 Now it looks much better.
 

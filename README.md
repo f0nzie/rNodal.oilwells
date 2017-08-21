@@ -127,7 +127,7 @@ What's next?
 
 -   Data introspection
 
--   Summary
+-   Summarizing data
 
 -   Finding and filling missing data
 
@@ -161,4 +161,4 @@ So, our first task is to ensure the wells are named correctly. That is essential
 
 -   We will address this using R.
 
-Next, is 5.1 Data introspection
+Next, is [5.1 Data introspection](https://github.com/f0nzie/rNodal.oilwells/blob/master/inst/notebooks/Part_05.1.md)

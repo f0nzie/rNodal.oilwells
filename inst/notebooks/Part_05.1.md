@@ -1,7 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+Transforming Excel well raw data into datasets
+==============================================
+
 5.1 Data Introspection
-======================
+----------------------
 
 This section is about getting familiar with our data. We will be using functions to know the size of our table or data frame, the names of the columns or variables, the staructure of the data and the type of data for each of the variables or colummns.
 

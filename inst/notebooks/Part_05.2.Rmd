@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(xlsx)
 
 # read the raw data
-myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 
+myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 
                   sheetIndex = 1, stringsAsFactors=FALSE)
 ```
 
@@ -356,7 +356,7 @@ grep("[MQRS]", myXl$Platform, invert = TRUE)
 library(xlsx)
 
 # read the raw data
-myXl <- read.xlsx("./inst/extdata/oilfield_100w_raw_data.xlsx", 1)
+myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 1)
 
 # lowercase to uppercase
   myXl$Wellname <- toupper(myXl$Wellname)

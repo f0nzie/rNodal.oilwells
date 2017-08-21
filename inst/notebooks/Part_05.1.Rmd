@@ -133,3 +133,13 @@ table(dataTypes)
 ```
 
 
+```{r}
+library(Hmisc)
+```
+
+
+
+```{r}
+describe(myXl)
+```
+

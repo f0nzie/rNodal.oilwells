@@ -1,19 +1,24 @@
 ---
-output: github_document
+title: "Transforming Excel well raw data into datasets"
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+  pdf_document:
+    toc: yes
 ---
+
+```{r setup, include=F, error=T, message=F, warning=F}
+knitr::opts_chunk$set(echo=T, comment="#:>", error=T, warning=F, message = F, fig.align = 'center', collapse=TRUE)
+```
+
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
-
-# rNodal.oilwells
+## This is part of the R package `rNodal.oilwells`
 
 The goal of `rNodal.oilwells` is to start processing well raw data and transforming it into tidy data.
 
@@ -28,8 +33,7 @@ devtools::install_github("f0nzie/rNodal.oilwells")
 
 Soon to be presented to CRAN.
 
-# Data Science for Petroleum Engineering - Part 5: "Transforming Excel well raw data into datasets.
-
+## Motivation
 One of the big challenges of this new era of data science. machine learning and artificial intelligence is getting unhooked from the habit of working with spreadsheets. They have been around for 30+ years and were awesome. But spreadsheets - or worksheets - do not scale well with massive amounts of data; or continuous streams of data; or other characteristics that are key for taking good and sound decisions such as **reproducibility**. Besides, spreadsheets have not kept with the times so we have seen the plotting capabilities getting very much behind of other software.
 
 *Plots are the most expressive way that you can show your data and analysis.*

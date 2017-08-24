@@ -757,7 +757,7 @@ data.frame(indices, values, myXl$Wellname[indices])
 # since the well name is already corrected, let's use it
 ```
 
-Again, if instead of using `invert=TRUE` in grep we coul have used the negation of the pattern which is:
+Again, if instead of using `invert=TRUE` in grep we could have used the negation of the pattern which is:
 
 <img src="./images/negate_platform.jpg" width="200px" style="display: block; margin: auto;" />
 

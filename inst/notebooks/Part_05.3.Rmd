@@ -1,12 +1,12 @@
 ---
 title: 'Finding and filling missing well data: alphanumerics'
 output:
-  html_document:
-    keep_md: yes
+  pdf_document:
     toc: yes
   html_notebook:
     toc: yes
-  pdf_document:
+  html_document:
+    keep_md: yes
     toc: yes
 ---
 

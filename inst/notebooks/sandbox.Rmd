@@ -4,6 +4,152 @@ output: html_notebook
 ---
 
 
+
+
+
+```{r}
+
+library(stringr)
+x <- myXl$Wellname
+
+incorrectIndices <- grep("[0-9]{4}-", x, perl=TRUE)  #  [1]   2 100
+
+xt <- strsplit(x[incorrectIndices], "-")
+fn <- unlist(lapply(xt, "[", 1))
+xl <- unlist(lapply(xt, "[", 2))
+ct <- unlist(lapply(xt, "[", 3))
+
+
+first <- str_sub(xl, 1, 1)                 # extract the 1st character
+xu <- unlist(str_extract_all(xl, "\\d+"))  # extract the numeric part only
+xn <- as.numeric(xu) / 1000 * 1000
+xp <- str_pad(xn, pad = "0", width = 3)
+wn <- paste0(first, xp)
+corrected <- paste(fn, wn, ct, sep = "-")
+
+myXl$Wellname[incorrectIndices] <- corrected
+
+  # show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+
+```
+
+### correct the platform in the well name
+
+```{r}
+x <- myXl$Wellname
+# pick up the well index
+incorrectIndices <- !grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", x)
+# incorrectIndices
+
+xt <- strsplit(x[incorrectIndices], "-")
+
+fn <- unlist(lapply(xt, "[", 1))
+xl <- unlist(lapply(xt, "[", 2))
+ct <- unlist(lapply(xt, "[", 3))
+
+xl 
+platform <- myXl$Platform[incorrectIndices]
+
+wn <- paste0(platform, xl)
+
+corrected <- paste(fn, wn, ct, sep = "-")
+corrected
+
+myXl$Wellname[incorrectIndices] <- corrected
+
+myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+
+# finished the corrections of the well name
+```
+
+
+
+```{r}
+# load the library xlsx
+library(xlsx)
+
+# read the raw data
+myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 1)
+
+# lowercase to uppercase
+  myXl$Wellname <- toupper(myXl$Wellname)
+
+
+
+# removing spaces
+  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
+
+  
+  
+
+# complete the completion type
+# We have three completion type: SS, LS and TS
+
+  myXl$Wellname <- gsub("-L$", "-LS", myXl$Wellname)    # the dollar sign at the end, means that 
+  myXl$Wellname <- gsub("-S$", "-SS", myXl$Wellname)    # we are checking at the end of the string
+  myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+```{r}
+# remove non compliant field names
+  # myXl$Wellname <- gsub("(^[PSCO])", "PSCO", myXl$Wellname)
+
+# show the wells with issues
+  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+```
+
+
+
+```{r}
+# test
+test <- c("PiSCO", "pISCO", "PSCO")
+
+gsub("^(PSCO)", "PSCO", test)
+
+```
+
+
+
+```{r}
+# show wells that do have incorrect field name
+myXl[!grepl("^PSCO-", myXl$Wellname), ]
+```
+
+```{r}
+# same but saving the data frame
+df <- myXl
+pattern <- "^(?!PSCO)"
+myXl[grepl(pattern, myXl$Wellname, perl = TRUE), ]
+```
+
+
+```{r}
+# attempt to replace PISCO. nOT WORKING
+df <- myXl
+pattern <- "(?!PSCO+)"
+df$Wellname <- gsub(pattern, "\\1", df$Wellname, perl = TRUE)
+
+df[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
+```
+
+
+```{r}
+# show wellls that do not comply with well naming pattern
+df[!grepl("PSCO-[M,O,P,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
+```
+
+
+```{r}
+unique(myXl$Wellname)
+```
+
+
+
 ```{r}
 ## Decompose a URL into its components.
 ## Example by LT (http://www.cs.uiowa.edu/~luke/R/regexp.html).

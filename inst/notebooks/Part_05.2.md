@@ -1,5 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+Finding and filling missing data: alphanumeric
+==============================================
+
 ``` r
 # load the library xlsx
 library(xlsx)
@@ -11,730 +14,151 @@ myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx",
                   sheetIndex = 1, stringsAsFactors=FALSE)
 ```
 
-Misstyped data
---------------
+Mistyped data
+-------------
 
-``` r
-unique(myXl$Wellname)
-#>  [1] "PSCO-M005-TS"  "PSCO-M0007-TS" "PSCO-M004-LS"  "PSCO-M008-TS" 
-#>  [5] "PSCO-M010-SS"  "PSCO-M006-TS"  "PSCO-m016-LS"  "PSCO-M018-LS" 
-#>  [9] "PSCO-M021-LS"  "PSCO-M017-LS"  "PSCO-M030-SS"  "PSCO-M027-SS" 
-#> [13] "PSCO-M016-SS"  "PSCO-M020-LS"  "PSCO-M028-TS"  "PSCO-M015-LS" 
-#> [17] "PSCO-M018-SS"  "PSCO-M015-SS"  "PSCO-M002-LS"  "PSCO-M012-TS" 
-#> [21] "PSCO-Q007-LS"  "PSCO-Q001-S"   "PSCO-Q005-SS"  "PSCO-Q011-SS" 
-#> [25] "PSCO-Q002-SS"  "PSCO-Q002-LS"  "PSCO-Q003-LS"  "PSCO-Q004-SS" 
-#> [29] "PSCO-Q009-SS"  "PSCO-Q019-L"   "PSCO-Q032-SS"  "PSCO-Q028-LS" 
-#> [33] "PSCO-Q028-SS"  "PSCO-Q029-LS"  "PSCO-Q032-LS"  "PSCO-Q024-TS" 
-#> [37] "PSCO-Q018-LS"  "PSCO-Q017-LS"  "PSCO-Q013-SS"  "PSCO-Q014-LS" 
-#> [41] "PSCO-Q017-SS"  "PSCO-Q014-SS"  "PSCO-Q018-SS"  "PSCO-Q012-TS" 
-#> [45] "PiSCO-R009-SS" "PSCO-r015-LS"  "PSCO-R019-SS"  "PSCO-R019-LS" 
-#> [49] "PSCO-R020-SS"  "PSCO-R013-TS"  "PSCO-R012-LS"  "PSCO-R012-SS" 
-#> [53] "PSCO-R018-SS"  "PSCO-R018-LS"  "PSCO-R015-SS"  "PSCO-R004-LS" 
-#> [57] "PSCO-R001-SS"  "PSCO-R003-TS"  "PSCO-R006-SS"  "PSCO-R007-LS" 
-#> [61] "PSCO-R001-LS"  "PSCO-R007-SS"  "PSCO-R002-SS"  "PSCO-R029-TS" 
-#> [65] "PISCO-R027-LS" "PSCO-R025-SS"  "PSCO-R023-SS"  "PSCO-R022-T"  
-#> [69] "PSCO-R021-SS"  "PSCO-R023-LS"  "PSCO-R027-SS"  "PSCO-S008-LS" 
-#> [73] "PSCO-S004-LS"  "PSCO-027-TS"   "PSCO-S019-SS"  "PSCO-S007-LS" 
-#> [77] "PSCO-S011-SS"  "PSCO-S016-LS"  "PSCO-S002-TS"  "PSCO-S019 -LS"
-#> [81] "PSCO-S030-SS"  "PSCO-S018-LS"  "PSCO-S026-SS"  "PSCO-S029-TS" 
-#> [85] "PSCO-S018-SS"  "PSCO-S013-SS"  "PSCO-S015-LS"  "PSCO-S031-TS" 
-#> [89] "PSCO-S032-SS"  "PSCO-S030-LS"  "PSCO-S032-LS"  "PSCO-S006-SS" 
-#> [93] "PSCO-S021-TS"  "PSCO-S016-SS"  "PSCO-S015-SS"  "PSCO-S012-LS" 
-#> [97] "PSCO-M001-TS"  "PSCO-M0026-TS"
-```
+One of the challenges in cleaning up well data is having uniform and standard well names. This becomes important at the time of classification, ranking and selection. An example of this is when looking for the **top 20** oil producers or wells with higher **watercut** or **GOR** or wells with highest or lowest gas injection rate **GLIR** (gas lift wells). If a well name is not correct you may encounter repeated occurrences of the well, a wrong classificatio, or a well that should have received attention but did not. Besides, how good an analysis can be if we start with typos in the well names, or the well everyone is expecting doesn't show up in the plot or summary?
+
+One of the first things to do, if we are folowing a well name standard, internal or API, is finding if all the wells in the raw data file are compliant. One way of doing it is comparing the well names with a pattern. In R there are several functions that use patterns for name verification and correction. We will be using a few: `grep`, `grepl`, `gsub`, and couple more from the R package `stringr`.
+
+Let's start then defining the pattern of a well name.
 
 Pattern detection
 -----------------
 
+If we take a look at the well name in the picture at the top we see that the naming should follow these rules:
+
+-   the first 4 alphabetic characters represent the abbreviation of the field
+-   then , there is dash
+-   after the dash comes one character for the platform
+-   then 3 digits, from 000 to 999 that represent the well number
+-   then a dash
+-   and finally, two alphabetic characters for the completion type
+
+So, there is a total of 10 significant identifiers plus 2 dashes.
+
+If we use `regular expressions` or `regex` in its simplest form the wells should follow this pattern:
+
+           PSCO-[M,Q,R,S][0-9][0-9][0-9]-[T,L,S]S
+
 ``` r
 # using a template to find out which well names do not follow a pattern
-myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 7    PSCO-m016-LS Oil Gains Co. Ibironke  <NA>  M016-LS        M     0
-#> 22    PSCO-Q001-S Oil Gains Co.  Americo PISCO  Q001-SS        Q     0
-#> 30    PSCO-Q019-L Oil Gains Co.   Norman PISCO  Q019-LS        Q     0
-#> 45  PiSCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 46   PSCO-r015-LS Oil Gains Co.    Vivek PISCO  R015-LS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 69    PSCO-R022-T Oil Gains Co.   Norman PISCO  R022-TS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 82  PSCO-S019 -LS Oil Gains Co.   Andrew PISCO  S019-LS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 7          0         1          0           0        3 419.775    35.0
-#> 22         0         1          0           0       11 420.000    36.0
-#> 30         0         1          0           0        2 415.875    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 46         0         1          0           0        2 416.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 69         0         1          1           3        3 419.775    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 82         0         1          0           0        1 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 7          1.2             15000       0      65           3             4
-#> 22         1.2             15000       0      65           3             2
-#> 30         1.2             15000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 46         1.2             12000       0      65           2             2
-#> 66         1.2             15000       0      65           3             2
-#> 69         1.2             15000       0      65           3             1
-#> 75         1.3             10000       0      74           3             1
-#> 82         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0    1300.000    209.0000
-#> 7          209   1722.000       10        0    1459.500    214.0000
-#> 22         209   1736.696       12        0     800.000    209.0000
-#> 30         209   1753.000       10        1     658.000    205.0000
-#> 45         209   1722.000       10        0    1546.000    209.0000
-#> 46         209   1753.000       10        1     951.000    209.0000
-#> 66         209   1935.700       10        1    1373.090    215.7700
-#> 69         209   1722.000       10        1    1400.000    203.0000
-#> 75         208   1850.696       10        1    1695.700    217.9990
-#> 82         208   1850.696       10        1    1695.696    217.9994
-#> 100        209   1921.000       10        0    1600.000    210.0000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI       GEO_THMD
-#> 2       1581.5  70.00       973.7       956.000  1.150        0|1744|
-#> 7       3676.0  90.00       560.0       981.644  1.018    14.52|1954|
-#> 22       557.0   8.00       568.0       364.696  2.300      0|1254.8|
-#> 30      1500.0  53.82       210.4       440.962  0.800 0|1000|1541.4|
-#> 45      1435.0  80.00         0.0         0.000  3.000     0|1667.08|
-#> 46      3108.0  80.00       580.0       718.604  1.270      0|2263.7|
-#> 66       762.0  60.00      1179.3      1031.980  4.400   0|2252|2580|
-#> 69      1625.9  80.00      1141.6       758.608  2.590        0|1663|
-#> 75       700.0   2.00      1075.0       736.188  1.550     0|5141.08|
-#> 82       850.0  50.69      1082.2       589.100  1.400     0|7372.05|
-#> 100     1009.0  80.00       784.6      1043.270  1.471        0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 7                 92|214|         0
-#> 22                60|203|         0
-#> 30       80|169.54|211.9|         2
-#> 45                90|209|         0
-#> 46                70|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 69                85|212|         2
-#> 75               104|218|         2
-#> 82           60.0001|206|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 7    676.82|1099.42|1444.92|1675.82|1731.22|0|0|0|0|0|   1675.82    1.2
-#> 22                             1139|0|0|0|0|0|0|0|0|0|    603.50    1.2
-#> 30          583.9|872.3|1083.72|1246.9|1362|0|0|0|0|0|      0.00    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 46               683.6|1384|1891.4|2044.8|0|0|0|0|0|0|   2030.50    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 69                    304|546|799|1058|1322|0|0|0|0|0|    284.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 82                     2454.4|4285.43|0|0|0|0|0|0|0|0|   4284.78    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 7       65
-#> 22      65
-#> 30      65
-#> 45      65
-#> 46      65
-#> 66      65
-#> 69      65
-#> 75      65
-#> 82      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 7                                                                                                                                                                                                                    05/05/2014|13/04/2014|17/12/2013|
-#> 22                                                                                                                           17/01/2014|01/02/2014|01/03/2014|02/04/2014|09/05/2014|03/07/2014|26/08/2014|28/08/2014|04/09/2014|07/10/2014|05/11/2014|
-#> 30                                                                                                                                                                                                                              12/03/2001|17/07/2000|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 46                                                                                                                                                                                                                                        |09/02/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 69                                                                                                                                                                                                                   14/09/2014|22/11/2014|09/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 82                                                                                                                                                                                                                                               42005
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 7                                                                             125.6|125|125|
-#> 22                                                         68|72|70|78|72|68|78|78|70|67|93|
-#> 30                                                                                   110|96|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 46                                                                                  130|114|
-#> 66                                                                                  165|135|
-#> 69                                                                              145|135|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 82                                                                             109.400009155
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 7                                                                                                                       560|558|558|
-#> 22                                                                                      416|521|452|595|443|458|574|542|514|428|568|
-#> 30                                                                                                                      527.7|210.4|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 46                                                                                                                          968|580|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 69                                                                                                             1420.9|1074.3|1141.6|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 82                                                                                                                    1082.199951172
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 7                                                                                                                    90|90|90|
-#> 22                                                                                                     0|0|0|5|5|7|8|10|8|7|8|
-#> 30                                                                                                                 5.08|53.82|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 46                                                                                                                      85|80|
-#> 66                                                                                                                      60|60|
-#> 69                                                                                                                80|80.01|80|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 82                                                                                                                50.689998627
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 7                                                                                                                261|290|290|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 46                                                                                                                 239|188.6|
-#> 66                                                                                                                 246.6|232|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 82                                                                                                              122.395996948
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 7                                                                                                                                   1233|1472|3676|
-#> 22                                                                                                     696|554|645|421|614|398|458|652|186|534|557|
-#> 30                                                                                                                                        977|1500|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 46                                                                                                                                        375|3108|
-#> 66                                                                                                                                     2368.52|762|
-#> 69                                                                                                                              1530|1469.3|1625.9|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 82                                                                                                                                              850
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 7                                                                                0.28|0.1|0.33|
-#> 22                                      0.459|0.465|0.44|0.52|0.58|0.37|0.509|0.5|0.35|0.3|0.3|
-#> 30                                                                                     0.6|0.1|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 46                                                                                    0.4|0.18|
-#> 66                                                                                   0.19|0.24|
-#> 69                                                                                 0.2|0.2|0.2|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 82                                                                                  0.280000001
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 7                                                                                                                                     1675.82|1675.82|1675.82|
-#> 22                                                                                          603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|
-#> 30                                                                                                                                                  1362|1362|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 46                                                                                                                                               683.6|2030.5|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 69                                                                                                                                             1322|1322|1322|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 82                                                                                                                                              4285.433105469
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 7                                         1|1|0|
-#> 22                        1|1|1|1|1|1|1|1|1|1|0|
-#> 30                                          1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 46                                          1|0|
-#> 66                                          1|0|
-#> 69                                        1|1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 82                                             0
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 7                                         0|0|0|
-#> 22                        0|0|0|0|0|0|0|0|0|0|0|
-#> 30                                          0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 46                                       2258|0|
-#> 66                                2517.8|2517.9|
-#> 69                                        0|0|0|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 82                                7372.047363281
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 7                                                                                                                261|290|290|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 46                                                                                                                1441|188.6|
-#> 66                                                                                                            1211.51|1047.2|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 82                                                                                                              589.099991699
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 7                                                                                            1459.5|1459.5|1459.5|
-#> 22                                                                    600|600|600|600|600|600|600|600|600|600|800|
-#> 30                                                                                                        658|658|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 46                                                                                                       1700|951|
-#> 66                                                                                                   1373.09|1373|
-#> 69                                                                                                 1400|1400|1400|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 82                                                                                                        1695.696
-#> 100                                                                                                     1600|1600|
-#>                                            ProsperFilename
-#> 2       \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 7       \\\\network\\piscis\\well_models\\PISC-M016-LS.Out
-#> 22      \\\\network\\piscis\\well_models\\PISC-Q001-SS.Out
-#> 30      \\\\network\\piscis\\well_models\\PISC-Q019-LS.Out
-#> 45      \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 46      \\\\network\\piscis\\well_models\\PISC-R015-LS.Out
-#> 66      \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 69  \\\\network\\piscis\\well_models\\PISC-R022ST02-TS.Out
-#> 75         \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 82      \\\\network\\piscis\\well_models\\PISC-S019-LS.Out
-#> 100  \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+  x <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  indices <- grep(pattern, x, invert = TRUE)
+  data.frame(indices, result)
+#>    indices        result
+#> 1        2 PSCO-M0007-TS
+#> 2        7  PSCO-m016-LS
+#> 3       22   PSCO-Q001-S
+#> 4       30   PSCO-Q019-L
+#> 5       45 PiSCO-R009-SS
+#> 6       46  PSCO-r015-LS
+#> 7       66 PISCO-R027-LS
+#> 8       69   PSCO-R022-T
+#> 9       75   PSCO-027-TS
+#> 10      82 PSCO-S019 -LS
+#> 11     100 PSCO-M0026-TS
 ```
 
-The result is that we get the observations (rows) that have incorrect well names. They are 11 instances. This is much better than visually inspecting them in a spreadsheet, isn't it?
+``` r
+# if we want to add another column for extra information just add the column with the indices
+data.frame(indices, result, myXl$Platform[indices])
+#>    indices        result myXl.Platform.indices.
+#> 1        2 PSCO-M0007-TS                      M
+#> 2        7  PSCO-m016-LS                      M
+#> 3       22   PSCO-Q001-S                      Q
+#> 4       30   PSCO-Q019-L                      Q
+#> 5       45 PiSCO-R009-SS                      R
+#> 6       46  PSCO-r015-LS                      R
+#> 7       66 PISCO-R027-LS                      R
+#> 8       69   PSCO-R022-T                      R
+#> 9       75   PSCO-027-TS                      S
+#> 10      82 PSCO-S019 -LS                      S
+#> 11     100 PSCO-M0026-TS                   <NA>
+```
+
+The result is that we get the observations (rows) that have incorrect well names. They are 11 instances.
+
+This is much better than visually inspecting them in a spreadsheet, isn't it?
 
 What are the type of offences?
 
--   Incorrect well number: PSCO-M0007-TS, PSCO-M0026-TS
--   Platform omitted: PSCO-027-TS
--   Platform in lowercase: PSCO-r015-LS, PSCO-m016-LS
--   Incorrect field name: PiSCO-R009-SS, PISCO-R027-LS
--   Incorrect completion type: PSCO-R022-T, PSCO-Q019-L, PSCO-Q001-S
--   Extra spaces in the name: PSCO-S019 -LS
+-   Incorrect well number: `PSCO-M0007-TS`, `PSCO-M0026-TS`
+-   Platform omitted: `PSCO-027-TS`
+-   Platform in lowercase: `PSCO-r015-LS`, `PSCO-m016-LS`
+-   Incorrect field name: `PiSCO-R009-SS`, `PISCO-R027-LS`
+-   Incorrect completion type: `PSCO-R022-T`, `PSCO-Q019-L`, `PSCO-Q001-S`
+-   Extra spaces in the name: `PSCO-S019 -LS`, `PSCO- M010-SS`
 
 Fix the well name
 -----------------
 
-Some can be fixed manually and other can be done automatically with a script. In our particular case we only have 100 wells but what about if we have 1000, or 5000? Doin,g it manually is not an option. Some are quickyly fixable some others are more challenging. Let's start by the easier ones.
+We will see that some well names can be fixed manually and others should be done automatically with a script.
 
-Always go from the more general to the more particular.
+In our particular case we only have 100 wells but what about if we have 1000, or 5000? Doing it manually is not an option. Some are quickly fixable some others are more challenging. Let's start by the easier ones.
+
+> Always go from the more general to the more particular.
+
+Let's convert the names to uppercase and verify how many were corrected.
 
 ``` r
 # lowercase to uppercase
   myXl$Wellname <- toupper(myXl$Wellname)
 
 # show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 22    PSCO-Q001-S Oil Gains Co.  Americo PISCO  Q001-SS        Q     0
-#> 30    PSCO-Q019-L Oil Gains Co.   Norman PISCO  Q019-LS        Q     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 69    PSCO-R022-T Oil Gains Co.   Norman PISCO  R022-TS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 82  PSCO-S019 -LS Oil Gains Co.   Andrew PISCO  S019-LS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 22         0         1          0           0       11 420.000    36.0
-#> 30         0         1          0           0        2 415.875    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 69         0         1          1           3        3 419.775    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 82         0         1          0           0        1 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 22         1.2             15000       0      65           3             2
-#> 30         1.2             15000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 69         1.2             15000       0      65           3             1
-#> 75         1.3             10000       0      74           3             1
-#> 82         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0    1300.000    209.0000
-#> 22         209   1736.696       12        0     800.000    209.0000
-#> 30         209   1753.000       10        1     658.000    205.0000
-#> 45         209   1722.000       10        0    1546.000    209.0000
-#> 66         209   1935.700       10        1    1373.090    215.7700
-#> 69         209   1722.000       10        1    1400.000    203.0000
-#> 75         208   1850.696       10        1    1695.700    217.9990
-#> 82         208   1850.696       10        1    1695.696    217.9994
-#> 100        209   1921.000       10        0    1600.000    210.0000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI       GEO_THMD
-#> 2       1581.5  70.00       973.7       956.000  1.150        0|1744|
-#> 22       557.0   8.00       568.0       364.696  2.300      0|1254.8|
-#> 30      1500.0  53.82       210.4       440.962  0.800 0|1000|1541.4|
-#> 45      1435.0  80.00         0.0         0.000  3.000     0|1667.08|
-#> 66       762.0  60.00      1179.3      1031.980  4.400   0|2252|2580|
-#> 69      1625.9  80.00      1141.6       758.608  2.590        0|1663|
-#> 75       700.0   2.00      1075.0       736.188  1.550     0|5141.08|
-#> 82       850.0  50.69      1082.2       589.100  1.400     0|7372.05|
-#> 100     1009.0  80.00       784.6      1043.270  1.471        0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 22                60|203|         0
-#> 30       80|169.54|211.9|         2
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 69                85|212|         2
-#> 75               104|218|         2
-#> 82           60.0001|206|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 22                             1139|0|0|0|0|0|0|0|0|0|    603.50    1.2
-#> 30          583.9|872.3|1083.72|1246.9|1362|0|0|0|0|0|      0.00    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 69                    304|546|799|1058|1322|0|0|0|0|0|    284.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 82                     2454.4|4285.43|0|0|0|0|0|0|0|0|   4284.78    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 22      65
-#> 30      65
-#> 45      65
-#> 66      65
-#> 69      65
-#> 75      65
-#> 82      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 22                                                                                                                           17/01/2014|01/02/2014|01/03/2014|02/04/2014|09/05/2014|03/07/2014|26/08/2014|28/08/2014|04/09/2014|07/10/2014|05/11/2014|
-#> 30                                                                                                                                                                                                                              12/03/2001|17/07/2000|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 69                                                                                                                                                                                                                   14/09/2014|22/11/2014|09/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 82                                                                                                                                                                                                                                               42005
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 22                                                         68|72|70|78|72|68|78|78|70|67|93|
-#> 30                                                                                   110|96|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 69                                                                              145|135|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 82                                                                             109.400009155
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 22                                                                                      416|521|452|595|443|458|574|542|514|428|568|
-#> 30                                                                                                                      527.7|210.4|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 69                                                                                                             1420.9|1074.3|1141.6|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 82                                                                                                                    1082.199951172
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 22                                                                                                     0|0|0|5|5|7|8|10|8|7|8|
-#> 30                                                                                                                 5.08|53.82|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 69                                                                                                                80|80.01|80|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 82                                                                                                                50.689998627
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 82                                                                                                              122.395996948
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 22                                                                                                     696|554|645|421|614|398|458|652|186|534|557|
-#> 30                                                                                                                                        977|1500|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 69                                                                                                                              1530|1469.3|1625.9|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 82                                                                                                                                              850
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 22                                      0.459|0.465|0.44|0.52|0.58|0.37|0.509|0.5|0.35|0.3|0.3|
-#> 30                                                                                     0.6|0.1|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 69                                                                                 0.2|0.2|0.2|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 82                                                                                  0.280000001
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 22                                                                                          603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|
-#> 30                                                                                                                                                  1362|1362|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 69                                                                                                                                             1322|1322|1322|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 82                                                                                                                                              4285.433105469
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 22                        1|1|1|1|1|1|1|1|1|1|0|
-#> 30                                          1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 69                                        1|1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 82                                             0
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 22                        0|0|0|0|0|0|0|0|0|0|0|
-#> 30                                          0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 69                                        0|0|0|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 82                                7372.047363281
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 82                                                                                                              589.099991699
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 22                                                                    600|600|600|600|600|600|600|600|600|600|800|
-#> 30                                                                                                        658|658|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 69                                                                                                 1400|1400|1400|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 82                                                                                                        1695.696
-#> 100                                                                                                     1600|1600|
-#>                                            ProsperFilename
-#> 2       \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 22      \\\\network\\piscis\\well_models\\PISC-Q001-SS.Out
-#> 30      \\\\network\\piscis\\well_models\\PISC-Q019-LS.Out
-#> 45      \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66      \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 69  \\\\network\\piscis\\well_models\\PISC-R022ST02-TS.Out
-#> 75         \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 82      \\\\network\\piscis\\well_models\\PISC-S019-LS.Out
-#> 100  \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+  x       <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  indices <- grep(pattern, x, invert = TRUE)
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  data.frame(indices, result)
+#>   indices        result
+#> 1       2 PSCO-M0007-TS
+#> 2      22   PSCO-Q001-S
+#> 3      30   PSCO-Q019-L
+#> 4      45 PISCO-R009-SS
+#> 5      66 PISCO-R027-LS
+#> 6      69   PSCO-R022-T
+#> 7      75   PSCO-027-TS
+#> 8      82 PSCO-S019 -LS
+#> 9     100 PSCO-M0026-TS
 ```
+
+Two were corrected.
+
+Now, let's remove spaces.
 
 ``` r
 # removing spaces
-  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
+  x         <- myXl$Wellname
+  pattern   <- " "
+  replaceBy <- ""
+  myXl$Wellname <- gsub(pattern, replaceBy, x)
 
 # show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 22    PSCO-Q001-S Oil Gains Co.  Americo PISCO  Q001-SS        Q     0
-#> 30    PSCO-Q019-L Oil Gains Co.   Norman PISCO  Q019-LS        Q     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 69    PSCO-R022-T Oil Gains Co.   Norman PISCO  R022-TS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 22         0         1          0           0       11 420.000    36.0
-#> 30         0         1          0           0        2 415.875    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 69         0         1          1           3        3 419.775    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 22         1.2             15000       0      65           3             2
-#> 30         1.2             15000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 69         1.2             15000       0      65           3             1
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 22         209   1736.696       12        0      800.00     209.000
-#> 30         209   1753.000       10        1      658.00     205.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 69         209   1722.000       10        1     1400.00     203.000
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI       GEO_THMD
-#> 2       1581.5  70.00       973.7       956.000  1.150        0|1744|
-#> 22       557.0   8.00       568.0       364.696  2.300      0|1254.8|
-#> 30      1500.0  53.82       210.4       440.962  0.800 0|1000|1541.4|
-#> 45      1435.0  80.00         0.0         0.000  3.000     0|1667.08|
-#> 66       762.0  60.00      1179.3      1031.980  4.400   0|2252|2580|
-#> 69      1625.9  80.00      1141.6       758.608  2.590        0|1663|
-#> 75       700.0   2.00      1075.0       736.188  1.550     0|5141.08|
-#> 100     1009.0  80.00       784.6      1043.270  1.471        0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 22                60|203|         0
-#> 30       80|169.54|211.9|         2
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 69                85|212|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 22                             1139|0|0|0|0|0|0|0|0|0|    603.50    1.2
-#> 30          583.9|872.3|1083.72|1246.9|1362|0|0|0|0|0|      0.00    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 69                    304|546|799|1058|1322|0|0|0|0|0|    284.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 22      65
-#> 30      65
-#> 45      65
-#> 66      65
-#> 69      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 22                                                                                                                           17/01/2014|01/02/2014|01/03/2014|02/04/2014|09/05/2014|03/07/2014|26/08/2014|28/08/2014|04/09/2014|07/10/2014|05/11/2014|
-#> 30                                                                                                                                                                                                                              12/03/2001|17/07/2000|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 69                                                                                                                                                                                                                   14/09/2014|22/11/2014|09/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 22                                                         68|72|70|78|72|68|78|78|70|67|93|
-#> 30                                                                                   110|96|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 69                                                                              145|135|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 22                                                                                      416|521|452|595|443|458|574|542|514|428|568|
-#> 30                                                                                                                      527.7|210.4|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 69                                                                                                             1420.9|1074.3|1141.6|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 22                                                                                                     0|0|0|5|5|7|8|10|8|7|8|
-#> 30                                                                                                                 5.08|53.82|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 69                                                                                                                80|80.01|80|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 22                                                                                                     696|554|645|421|614|398|458|652|186|534|557|
-#> 30                                                                                                                                        977|1500|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 69                                                                                                                              1530|1469.3|1625.9|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 22                                      0.459|0.465|0.44|0.52|0.58|0.37|0.509|0.5|0.35|0.3|0.3|
-#> 30                                                                                     0.6|0.1|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 69                                                                                 0.2|0.2|0.2|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 22                                                                                          603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|603.5|
-#> 30                                                                                                                                                  1362|1362|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 69                                                                                                                                             1322|1322|1322|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 22                        1|1|1|1|1|1|1|1|1|1|0|
-#> 30                                          1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 69                                        1|1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 22                        0|0|0|0|0|0|0|0|0|0|0|
-#> 30                                          0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 69                                        0|0|0|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 22                                                                            101.5|101.53|101.5|261|87|80|87|101.5|87|87|87|
-#> 30                                                                                                                 101.5|102|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 69                                                                                                         217.6|217.6|217.5|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 22                                                                    600|600|600|600|600|600|600|600|600|600|800|
-#> 30                                                                                                        658|658|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 69                                                                                                 1400|1400|1400|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                            ProsperFilename
-#> 2       \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 22      \\\\network\\piscis\\well_models\\PISC-Q001-SS.Out
-#> 30      \\\\network\\piscis\\well_models\\PISC-Q019-LS.Out
-#> 45      \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66      \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 69  \\\\network\\piscis\\well_models\\PISC-R022ST02-TS.Out
-#> 75         \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100  \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+  # myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
+  
+# show the wells with issues
+  x       <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  indices <- grep(pattern, x, invert = TRUE)
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  data.frame(indices, result)  
+#>   indices        result
+#> 1       2 PSCO-M0007-TS
+#> 2      22   PSCO-Q001-S
+#> 3      30   PSCO-Q019-L
+#> 4      45 PISCO-R009-SS
+#> 5      66 PISCO-R027-LS
+#> 6      69   PSCO-R022-T
+#> 7      75   PSCO-027-TS
+#> 8     100 PSCO-M0026-TS
 ```
+
+One well name was corrected.
+
+Correct the completion type. Tey should have two characters: LS, TS or SS.
 
 ``` r
 # complete the completion type
@@ -745,298 +169,93 @@ Always go from the more general to the more particular.
   myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
 
 # show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150      0|1744|
-#> 45      1435.0     80         0.0         0.000  3.000   0|1667.08|
-#> 66       762.0     60      1179.3      1031.980  4.400 0|2252|2580|
-#> 75       700.0      2      1075.0       736.188  1.550   0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471      0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 45      65
-#> 66      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 45     \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66     \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+  x <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  indices <- grep(pattern, x, invert = TRUE)
+  data.frame(indices, result)
+#>   indices        result
+#> 1       2 PSCO-M0007-TS
+#> 2      45 PISCO-R009-SS
+#> 3      66 PISCO-R027-LS
+#> 4      75   PSCO-027-TS
+#> 5     100 PSCO-M0026-TS
 ```
 
-Those were the easy ones. There are 5 more to go.
+Those were the easy ones. We had three corrections. There are 5 more to go.
+
+### correcting the field in the well name
+
+There are two wells that were not properly field identified.
+
+We have an additional "I" in the field name abbreviation. We have to remove it.
+
+At this point we have two choices: (1) change all the first 4 first characters to PSCO, or, (2) replace only those two well names with the issue.
 
 ``` r
 # detect well names that are not named as PSCO-
-  myXl[!grepl("^PSCO-", myXl$Wellname), ]        # the ^ character means look at the start of the string
-#>         Wellname       Company Analyst Field Location Platform Fluid
-#> 45 PISCO-R009-SS Oil Gains Co.    Aida PISCO  R009-SS        R     0
-#> 66 PISCO-R027-LS Oil Gains Co.  Norman PISCO  R027-LS        R     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 45        0         1          0           0       15 420.000      36
-#> 66        0         1          0           0        2 472.896      36
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 45        1.2             25000       0      65           3             2
-#> 66        1.2             15000       0      65           3             2
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 45        209     1722.0       10        0     1546.00      209.00
-#> 66        209     1935.7       10        1     1373.09      215.77
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 45       1435     80         0.0          0.00    3.0   0|1667.08|
-#> 66        762     60      1179.3       1031.98    4.4 0|2252|2580|
-#>               GEO_THTEMP GL_method
-#> 45               90|209|         0
-#> 66 81.446|207.78|217.64|         2
-#>                                      GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 45 187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|    1241.1    1.2
-#> 66       808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|       0.0    1.2
-#>    GL_CO2
-#> 45     65
-#> 66     65
-#>                                                                                                                                                                  WT_DATE
-#> 45 06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                18/05/2013|23/12/2014|
-#>                                                          WT_THT
-#> 45 120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                     165|135|
-#>                                                                                          WT_LIQRT
-#> 45 1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                 2253.2|1179.3|
-#>                                                                             WT_WC
-#> 45 90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                         60|60|
-#>                                                                              WT_THP
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                       246.6|232|
-#>                                                                                                   WT_GOR
-#> 45 5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                          2368.52|762|
-#>                                                          WT_GLIR
-#> 45 0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                    0.19|0.24|
-#>                                                                                                     WT_DEPTH
-#> 45 1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                            2252.5|2252.5|
-#>                         WT_Enable                      WT_GDEPTH
-#> 45 1|1|1|1|1|1|1|1|1|1|1|1|1|1|0| 0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                           1|0|                 2517.8|2517.9|
-#>                                                                            WT_GPRES
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                  1211.51|1047.2|
-#>                                                                     WT_RESPRES
-#> 45 1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                               1373.09|1373|
-#>                                       ProsperFilename
-#> 45 \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66 \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
+  x       <- myXl$Wellname
+  pattern <- "^PSCO-"
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  indices <- grep(pattern, x, invert = TRUE)
+  data.frame(indices, result)
+#>   indices        result
+#> 1      45 PISCO-R009-SS
+#> 2      66 PISCO-R027-LS
+  
+# 
+# !    logical negation
+#  ^   means look at the start of the string
+  rx <- result
 ```
 
-### 
+#### option (1): change all the first 4 first characters to PSCO
 
 ``` r
 # replace any characters before the first dash
-  x <- myXl$Wellname
-
+  x       <- myXl$Wellname
   pattern <- "^[^-]+"
-  repl_with <- "PSCO"
+  replace <- "PSCO"
 
-  myXl$Wellname <- gsub(pattern, repl_with, x, perl = TRUE)
-
-  # show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0      1300.0     209.000
-#> 75         208   1850.696       10        1      1695.7     217.999
-#> 100        209   1921.000       10        0      1600.0     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI   GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150    0|1744|
-#> 75       700.0      2      1075.0       736.188  1.550 0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471    0|1593|
-#>     GEO_THTEMP GL_method                                  GL_ArrayMandrels
-#> 2      90|200|         0             614.3|1118|1422.5|1564.6|0|0|0|0|0|0|
-#> 75    104|218|         2 1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|
-#> 100    80|224|         0                 569|865|1094|1276|1424|0|0|0|0|0|
-#>     GL_Vdepth GL_GSG GL_CO2
-#> 2     1564.60    1.2     65
-#> 75    4501.31    1.2     65
-#> 100   1404.00    1.2     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+# replace on all the wells  
+  myXl$Wellname <- gsub(pattern, replace, x, perl = TRUE)
 ```
 
-Alright. We corrected the field name in the well name. There are still three more wells to go which problems are:
+#### option (2): replace only those two well names with the issue.
+
+``` r
+# replace the letter "I" by a blank
+  x       <- myXl$Wellname
+  pattern <- "I(?<!S)"
+  replaceBy <- ""
+
+# replace on indexed wells
+  myXl$Wellname[indices]
+#> [1] "PSCO-R009-SS" "PSCO-R027-LS"
+  myXl$Wellname[indices] <- gsub(pattern, replaceBy, x[indices], perl = TRUE)
+  myXl$Wellname[indices]
+#> [1] "PSCO-R009-SS" "PSCO-R027-LS"
+```
+
+correct the length of the well number
+-------------------------------------
+
+The well names have corrected on the field identifier. Next if correct the length of the well number.
+
+``` r
+# show the wells with issues
+  x       <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  result  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  indices <- grep(pattern, x, invert = TRUE)
+  data.frame(indices, result, platform = myXl$Platform[indices])
+#>   indices        result platform
+#> 1       2 PSCO-M0007-TS        M
+#> 2      75   PSCO-027-TS        S
+#> 3     100 PSCO-M0026-TS     <NA>
+```
+
+Alright. So far, we have corrected the field name in the well name. There are still three more wells to go which problems are:
 
     PSCO-M0007-TS  long well number. It should be maximum of 3 digits
     PSCO-027-TS    missing platform number
@@ -1044,398 +263,144 @@ Alright. We corrected the field name in the well name. There are still three mor
 
 ### correcting longer well number (digits)
 
+They should be `000` to `999` after the field identifier (one character)
+
 ``` r
-# find wells with longer well number
-x <- myXl$Wellname
-myXl[grepl("[0-9]{4}-", x, perl=TRUE), ]     # 
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000      36
-#> 100        0         1          0           0        2 472.896      36
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209       1921       10        0        1300         209
-#> 100        209       1921       10        0        1600         210
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI GEO_THMD GEO_THTEMP
-#> 2       1581.5     70       973.7        956.00  1.150  0|1744|    90|200|
-#> 100     1009.0     80       784.6       1043.27  1.471  0|1593|    80|224|
-#>     GL_method                      GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2           0 614.3|1118|1422.5|1564.6|0|0|0|0|0|0|    1564.6    1.2
-#> 100         0     569|865|1094|1276|1424|0|0|0|0|0|    1404.0    1.2
-#>     GL_CO2
-#> 2       65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
+# take a look at the wells that have longer digits
+  x <- myXl$Wellname
+  pattern = "(?=[0-9]{4,})0(?=0)" 
+  
+  values  <- grep(pattern, x, value = TRUE, perl = TRUE)
+  indices <- grep(pattern, x, perl = TRUE)
+  data.frame(indices, values)
+#>   indices        values
+#> 1       2 PSCO-M0007-TS
+#> 2     100 PSCO-M0026-TS
+```
+
+See what we are going to replace:
+
+``` r
+# what the pattern has detected is one zero at position 7, right after the field
+  gregexpr(pattern, result, perl = TRUE)
+#> [[1]]
+#> [1] 7
+#> attr(,"match.length")
+#> [1] 1
+#> attr(,"useBytes")
+#> [1] TRUE
+#> 
+#> [[2]]
+#> [1] -1
+#> attr(,"match.length")
+#> [1] -1
+#> attr(,"useBytes")
+#> [1] TRUE
+#> 
+#> [[3]]
+#> [1] 7
+#> attr(,"match.length")
+#> [1] 1
+#> attr(,"useBytes")
+#> [1] TRUE
 ```
 
 ``` r
-library(stringr)
-x <- myXl$Wellname
+# replace well number that are long
+x         <- myXl$Wellname
+pattern   <-  "(?=[0-9]{4,})0(?=0)"      
+replaceBy <-  ""
 
-allIndices <- 1:length(x)
-incorrectIndices <- grep("[0-9]{4}-", x, perl=TRUE)
-incorrectIndices
-#> [1]   2 100
-
-xt <- strsplit(x[incorrectIndices], "-")
-fn <- unlist(lapply(xt, "[", 1))
-xl <- unlist(lapply(xt, "[", 2))
-ct <- unlist(lapply(xt, "[", 3))
-
-
-first <- str_sub(xl, 1, 1)                 # extract the 1st character
-xu <- unlist(str_extract_all(xl, "\\d+"))  # extract the numeric part only
-xn <- as.numeric(xu) / 1000 * 1000
-xp <- str_pad(xn, pad = "0", width = 3)
-wn <- paste0(first, xp)
-corrected <- paste(fn, wn, ct, sep = "-")
-
-myXl$Wellname[incorrectIndices] <- corrected
-
-  # show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>       Wellname       Company Analyst Field Location Platform Fluid
-#> 75 PSCO-027-TS Oil Gains Co.  Andrew PISCO  S027-TS        S     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 75        0         1          1           3        7 455.183    36.1
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 75        1.3             10000       0      74           3             1
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 75        208   1850.696       10        1      1695.7     217.999
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI   GEO_THMD
-#> 75        700      2        1075       736.188   1.55 0|5141.08|
-#>    GEO_THTEMP GL_method                                  GL_ArrayMandrels
-#> 75   104|218|         2 1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|
-#>    GL_Vdepth GL_GSG GL_CO2
-#> 75   4501.31    1.2     65
-#>                                                                          WT_DATE
-#> 75 21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#>                              WT_THT                             WT_LIQRT
-#> 75 114.8|149|149|141|110|154.4|140| 339|1261|687|1075|212|1159.1|1159.1|
-#>                    WT_WC
-#> 75 2|0.9|14|0|2|4.9|4.9|
-#>                                                      WT_THP
-#> 75 173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#>                           WT_GOR                            WT_GLIR
-#> 75 2626|586|950|700|500|660|500| 0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#>                                                    WT_DEPTH      WT_Enable
-#> 75 4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31| 1|1|1|1|1|1|0|
-#>                           WT_GDEPTH
-#> 75 0|0|0|5141.08|5141.08|0|5141.08|
-#>                                                    WT_GPRES
-#> 75 173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#>                                           WT_RESPRES
-#> 75 1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#>                                    ProsperFilename
-#> 75 \\\\network\\piscis\\well_models\\PISC-S027.Out
+myXl$Wellname[indices] <- gsub(pattern, replaceBy, x[indices], perl = TRUE)
 ```
 
-### correct the platform in the well name
+``` r
+# show the wells with issues
+  x <- myXl$Wellname
+  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
+  values  <- grep(pattern, x, value = TRUE, invert = TRUE)
+  indices <- grep(pattern, x, invert = TRUE)
+  data.frame(indices, values)
+#>   indices      values
+#> 1      75 PSCO-027-TS
+```
+
+Very good. Now we have one well left.
+
+Add the one-letter platform identifier to the well name
+-------------------------------------------------------
 
 ``` r
-x <- myXl$Wellname
-# pick up the well index
-incorrectIndices <- !grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", x)
-# incorrectIndices
+# take a look at the wells 
+  x <- myXl$Wellname
+  pattern = "(PSCO-)(?=0)" 
+  
+  values  <- grep(pattern, x, value = TRUE, perl = TRUE)
+  indices <- grep(pattern, x, perl = TRUE)
+  data.frame(indices, values, platform = myXl$Platform[indices])
+#>   indices      values platform
+#> 1      75 PSCO-027-TS        S
+```
 
-xt <- strsplit(x[incorrectIndices], "-")
-
-fn <- unlist(lapply(xt, "[", 1))
-xl <- unlist(lapply(xt, "[", 2))
-ct <- unlist(lapply(xt, "[", 3))
-
-xl 
-#> [1] "027"
-platform <- myXl$Platform[incorrectIndices]
-
-wn <- paste0(platform, xl)
-
-corrected <- paste(fn, wn, ct, sep = "-")
-corrected
+``` r
+# replace the "I" by a blank
+  x         <- myXl$Wellname
+  pattern   <-  "(PSCO-)(?=0)"
+  replaceBy <- paste0("\\1", myXl$Platform[[indices]])   # concatenate the platform
+  
+  myXl$Wellname[indices]  # before
+#> [1] "PSCO-027-TS"
+  myXl$Wellname[indices]  <- gsub(pattern, replaceBy, x[indices], perl = TRUE)
+  myXl$Wellname[indices]  # after
 #> [1] "PSCO-S027-TS"
-
-myXl$Wellname[incorrectIndices] <- corrected
-
-myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>  [1] Wellname          Company           Analyst          
-#>  [4] Field             Location          Platform         
-#>  [7] Fluid             WellType          AL_Method        
-#> [10] Completion        SandControl       WT_COUNT         
-#> [13] PVT_GOR           PVT_API           PVT_SG_gas       
-#> [16] PVT_WaterSalinity PVT_H2S           PVT_CO2          
-#> [19] PVT_PB_CORR       PVT_VISC_CORR     PVT_BPTEMP       
-#> [22] PVT_BPPRES        VLP_CORR          IPR_CORR         
-#> [25] IPR_RESPRES       IPR_RESTEMP       IPR_TOTGOR       
-#> [28] IPR_WC            IPR_VOGELRT       IPR_VOGELPRES    
-#> [31] IPR_PI            GEO_THMD          GEO_THTEMP       
-#> [34] GL_method         GL_ArrayMandrels  GL_Vdepth        
-#> [37] GL_GSG            GL_CO2            WT_DATE          
-#> [40] WT_THT            WT_LIQRT          WT_WC            
-#> [43] WT_THP            WT_GOR            WT_GLIR          
-#> [46] WT_DEPTH          WT_Enable         WT_GDEPTH        
-#> [49] WT_GPRES          WT_RESPRES        ProsperFilename  
-#> <0 rows> (or 0-length row.names)
-
-# finished the corrections of the well name
 ```
+
+Well names are done!
 
 ### Company
 
 ``` r
-myXl[!grepl("Oil Gains Co.", myXl$Company),]
-#>  [1] Wellname          Company           Analyst          
-#>  [4] Field             Location          Platform         
-#>  [7] Fluid             WellType          AL_Method        
-#> [10] Completion        SandControl       WT_COUNT         
-#> [13] PVT_GOR           PVT_API           PVT_SG_gas       
-#> [16] PVT_WaterSalinity PVT_H2S           PVT_CO2          
-#> [19] PVT_PB_CORR       PVT_VISC_CORR     PVT_BPTEMP       
-#> [22] PVT_BPPRES        VLP_CORR          IPR_CORR         
-#> [25] IPR_RESPRES       IPR_RESTEMP       IPR_TOTGOR       
-#> [28] IPR_WC            IPR_VOGELRT       IPR_VOGELPRES    
-#> [31] IPR_PI            GEO_THMD          GEO_THTEMP       
-#> [34] GL_method         GL_ArrayMandrels  GL_Vdepth        
-#> [37] GL_GSG            GL_CO2            WT_DATE          
-#> [40] WT_THT            WT_LIQRT          WT_WC            
-#> [43] WT_THP            WT_GOR            WT_GLIR          
-#> [46] WT_DEPTH          WT_Enable         WT_GDEPTH        
-#> [49] WT_GPRES          WT_RESPRES        ProsperFilename  
-#> <0 rows> (or 0-length row.names)
+
+x        <- myXl$Company
+patttern <- "Oil Gains Co."
+
+grep(pattern, x, value = TRUE, perl = TRUE)
+#> character(0)
 # We don't get any return. All the company names are the same. Cool!
 ```
+
+We don't get any return. All the company names are the same. Cool!
 
 ### Analyst
 
 ``` r
-summary(myXl$Analyst)
-#>    Length     Class      Mode 
-#>       100 character character
+# summary(myXl$Analyst)
 unique(myXl$Analyst)
 #>  [1] "Aida"     "Ibironke" "Ibironk"  "Vivek"    "Americo"  "Norman"  
 #>  [7] "Rod"      "Rodrigo"  "Sam"      "Thomas"   "Tom"      "Kai"     
 #> [13] "Andrew"   "Andy"     "Camden"   NA
+length(unique(myXl$Analyst))
+#> [1] 16
 ```
 
 ``` r
 operators <- c("Aida", "Americo", "Andrew", "Camden", "Ibironke", "Kai", "Norman", 
                "Rodrigo", "Sam", "Tom", "Vivek")
 
-# incorrect assignements
-tocorrectIndices <- which(!myXl$Analyst %in% operators)
-myXl[tocorrectIndices, ]
-#>        Wellname       Company Analyst Field Location Platform Fluid
-#> 9  PSCO-M021-LS Oil Gains Co. Ibironk PISCO  M021-LS        M     0
-#> 31 PSCO-Q032-SS Oil Gains Co.     Rod PISCO  Q032-SS        Q     0
-#> 32 PSCO-Q028-LS Oil Gains Co.     Rod PISCO  Q028-LS        Q     0
-#> 33 PSCO-Q028-SS Oil Gains Co.     Rod PISCO  Q028-SS        Q     0
-#> 37 PSCO-Q018-LS Oil Gains Co.  Thomas PISCO  Q018-LS        Q     0
-#> 78 PSCO-S011-SS Oil Gains Co.    Andy PISCO  S011-SS        S     0
-#> 83 PSCO-S030-SS Oil Gains Co.    Andy PISCO  S030-SS        S     0
-#> 98 PSCO-S012-LS Oil Gains Co.    <NA> PISCO  S012-LS        S     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 9         0         1          0           0        2 415.875      36
-#> 31        0         1          0           0        4 416.000      36
-#> 32        0         1          0           0        1 472.000      36
-#> 33        0         1          0           0        1 472.000      36
-#> 37        0         1          0           0        1 416.000      36
-#> 78        0         1          0           0        9 455.183      36
-#> 83        0         1          1           3        8 439.000      36
-#> 98        0         1          0           0        2 350.000      36
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 9     1.20000             15000       0      65           3             0
-#> 31    1.21562             15500       0      65           3             2
-#> 32    1.20000             15000       0      69           3             2
-#> 33    1.20000             15000       0      69           3             2
-#> 37    1.20000             15500       0      65           3             1
-#> 78    1.30000             15000       0      70           3             1
-#> 83    1.30000             15000       0      74           3             2
-#> 98    1.30000             20000       0      70           0             0
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 9   209.00000   1753.000       10        1    1526.000     202.000
-#> 31  209.00000   1767.696       10        0    1300.000     209.000
-#> 32  209.00000   1921.000       10        1    1560.710     210.000
-#> 33  209.00000   1921.000       10        1    1560.710     210.000
-#> 37  408.20001   1738.300       10        0    1080.000     212.000
-#> 78   97.77777   1836.000       10        1    1485.000     107.578
-#> 83  208.00000   1835.696       10        1    1480.750     206.000
-#> 98         NA         NA       10        3    1620.696     206.000
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES   IPR_PI       GEO_THMD
-#> 9     4735.00     90       440.8       873.840 0.688000 14.52|1543.02|
-#> 31    6000.00     95         0.0         0.000 2.000000        0|2538|
-#> 32    1597.00     79      1730.0       951.197 0.000000        0|1458|
-#> 33    1839.00     79      1730.0       860.542 0.000000        0|1458|
-#> 37    2467.00     82         0.0         0.000 2.160971        0|1761|
-#> 78     940.00     44       362.0       668.011 0.628750     0|9186.35|
-#> 83     500.00     17       396.0       715.239 0.700000     0|4757.22|
-#> 98    2821.67     90         0.0         0.000 1.000000     0|4507.87|
-#>          GEO_THTEMP GL_method
-#> 9           80|202|         0
-#> 31          60|209|         0
-#> 32          80|210|         0
-#> 33          80|210|         0
-#> 37          80|206|         2
-#> 78 26.6667|107.578|         2
-#> 83         140|206|         0
-#> 98          70|204|         2
-#>                                            GL_ArrayMandrels GL_Vdepth
-#> 9                601.02|906.02|1140.02|1318.02|0|0|0|0|0|0|  1318.020
-#> 31                                     0|0|0|0|0|0|0|0|0|0|  2138.800
-#> 32                                     0|0|0|0|0|0|0|0|0|0|  1108.000
-#> 33                                     0|0|0|0|0|0|0|0|0|0|  1098.950
-#> 37                        618|974|1263|1475|1609|0|0|0|0|0|  1609.200
-#> 78             2369.75|5120.08|7206.36|8852.03|0|0|0|0|0|0|  8852.034
-#> 83 1332.02|2109.58|2752.62|3316.93|3792.65|4199.48|0|0|0|0|  4199.480
-#> 98             1756.23|2797.24|3649.93|4092.52|0|0|0|0|0|0|     0.000
-#>    GL_GSG GL_CO2
-#> 9     1.2     65
-#> 31    1.2     65
-#> 32    1.2     65
-#> 33    1.2     65
-#> 37    1.2     65
-#> 78    1.2     65
-#> 83    1.2     65
-#> 98    1.2     65
-#>                                                                                      WT_DATE
-#> 9                                                                     14/08/2005|21/06/2005|
-#> 31                                              09/04/2014|19/06/2014|12/09/2014|30/11/2014|
-#> 32                                                                                     41799
-#> 33                                                                                     41799
-#> 37                                                                                     41953
-#> 78 |25/09/2013|19/07/2013|15/06/2014|15/06/2014|11/07/2014|12/05/2014|24/01/2015|24/01/2015|
-#> 83  08/08/2012|15/09/2012|09/10/2012|20/06/2012|30/07/2012|18/04/2014|21/05/2014|14/06/2014|
-#> 98                                                                              |15/06/2013|
-#>                                          WT_THT
-#> 9                                      110|113|
-#> 31                             200|200|100|120|
-#> 32                                          152
-#> 33                                          152
-#> 37                                          127
-#> 78        30.5556|55|49|59|44|45|40.5556|41|42|
-#> 83 123.8|134.6|131|123.8|123.8|136.4|168.8|149|
-#> 98                               64.9999|113.8|
-#>                                      WT_LIQRT                       WT_WC
-#> 9                               440.8|1722.5|                      90|95|
-#> 31                          1674|746|392|904|                85|88|88|95|
-#> 32                                       1730                          79
-#> 33                                       1730                          79
-#> 37                                        753                          80
-#> 78      1142|350|263|455|455|529|369|362|362| 89|55|50|60|60|23|59|44|44|
-#> 83 284.1|150.6|231.6|69.84|69.84|279|195|396|         0|0|0|0|0|19|20|17|
-#> 98                                   585|553|                      90|95|
-#>                                                         WT_THP
-#> 9                                                 290.1|101.5|
-#> 31                              261.696|203.696|275.696|130.5|
-#> 32                                                         232
-#> 33                                                         232
-#> 37                                                          87
-#> 78             159.304|261|232|174|174|208|143.67|265.2|265.2|
-#> 83 174.24|156.84|159.74|174.24|174.24|213.346|171.839|246.696|
-#> 98                                                144.696|449|
-#>                                           WT_GOR
-#> 9                                     4735|4382|
-#> 31                          1251|5023|9526|6000|
-#> 32                                          1597
-#> 33                                          1839
-#> 37                                          1139
-#> 78     9001|3129|2827|2635|611|364|550|6247|940|
-#> 83 2625|2958|2625|3217.56|3378.56|860|14012|500|
-#> 98                                   1500|13115|
-#>                                    WT_GLIR
-#> 9                                0.18|0.2|
-#> 31                       475|430|550|0.27|
-#> 32                             0.275000006
-#> 33                             0.282999992
-#> 37                             0.200000003
-#> 78      0.1|0.3|0.3|0|0.1|1|0.1|0.33|0.33|
-#> 83 0.096|0.047|0|0.05|0.05|0.96|0.47|0.17|
-#> 98                              0.1|0.118|
-#>                                                                    WT_DEPTH
-#> 9                                                                1318|1318|
-#> 31                                             2138.8|2138.8|2138.8|2138.8|
-#> 32                                                            1108.00001543
-#> 33                                                           1098.950000391
-#> 37                                                           1609.000058203
-#> 78 4548.88|8851.71|8851.71|8851.71|5120.08|8851.71|2040.68|2040.68|2040.68|
-#> 83         4199.48|4199.48|4199.48|4199.48|4199.48|4199.48|4199.48|4199.48|
-#> 98                                                         3937.01|2795.28|
-#>             WT_Enable                                  WT_GDEPTH
-#> 9                0|1|                                       0|0|
-#> 31           1|1|1|0|                                   0|0|0|0|
-#> 32                  0                                          0
-#> 33                  0                                          0
-#> 37                  0                                          0
-#> 78 1|1|1|1|1|1|1|1|0| 0|0|0|9186.35|9186.35|0|9186.35|0|9186.35|
-#> 83   1|1|1|1|1|1|1|0|                           0|0|0|0|0|0|0|0|
-#> 98               1|0|                                 0|4429.13|
-#>                                                       WT_GPRES
-#> 9                                                 290.1|101.5|
-#> 31                              261.696|203.696|275.696|130.5|
-#> 32                                                         232
-#> 33                                                         232
-#> 37                                                          87
-#> 78  159.304|261|232|1009.48|1159.51|208|1226.67|265.2|668.011|
-#> 83 174.24|156.84|159.74|174.24|174.24|213.696|171.696|246.696|
-#> 98                                               144.696|1180|
-#>                                              WT_RESPRES
-#> 9                                            1526|1526|
-#> 31                                 1300|1300|1300|1300|
-#> 32                                         1560.7109375
-#> 33                                         1560.7109375
-#> 37                                                 1080
-#> 78 1499.3|1485.3|1276.52|1485|1485|1485|1485|1485|1485|
-#> 83    1500|1500|1500|1500|1500|1480.74|1480.74|1480.74|
-#> 98                                       1214.7|1620.7|
-#>                                       ProsperFilename
-#> 9  \\\\network\\piscis\\well_models\\PISC-M021-LS.Out
-#> 31 \\\\network\\piscis\\well_models\\PISC-Q032-SS.Out
-#> 32 \\\\network\\piscis\\well_models\\PISC-Q028-LS.Out
-#> 33 \\\\network\\piscis\\well_models\\PISC-Q028-SS.Out
-#> 37 \\\\network\\piscis\\well_models\\PISC-Q018-LS.Out
-#> 78 \\\\network\\piscis\\well_models\\PISC-S011-SS.Out
-#> 83 \\\\network\\piscis\\well_models\\PISC-S030-SS.Out
-#> 98 \\\\network\\piscis\\well_models\\PISC-S013-LS.Out
+# find incorrect assignments
+x <- myXl$Analyst
+  indices <- which(!x %in% operators)
+  result  <- myXl$Analyst[indices]
+  data.frame(indices, result)
+#>   indices  result
+#> 1       9 Ibironk
+#> 2      31     Rod
+#> 3      32     Rod
+#> 4      33     Rod
+#> 5      37  Thomas
+#> 6      78    Andy
+#> 7      83    Andy
+#> 8      98    <NA>
 ```
 
 We can correct manually:
@@ -1447,28 +412,12 @@ myXl$Analyst[c(78,83)] = "Andrew"
 myXl$Analyst[c(37)] = "Tom"
 
 # verify if we have incorrect assignements
-  tocorrectIndices <- which(!myXl$Analyst %in% operators)
-  myXl[tocorrectIndices, ]
-#>        Wellname       Company Analyst Field Location Platform Fluid
-#> 98 PSCO-S012-LS Oil Gains Co.    <NA> PISCO  S012-LS        S     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 98        0         1          0           0        2     350      36
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 98        1.3             20000       0      70           0             0
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 98         NA         NA       10        3    1620.696         206
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI   GEO_THMD
-#> 98    2821.67     90           0             0      1 0|4507.87|
-#>    GEO_THTEMP GL_method                             GL_ArrayMandrels
-#> 98    70|204|         2 1756.23|2797.24|3649.93|4092.52|0|0|0|0|0|0|
-#>    GL_Vdepth GL_GSG GL_CO2      WT_DATE         WT_THT WT_LIQRT  WT_WC
-#> 98         0    1.2     65 |15/06/2013| 64.9999|113.8| 585|553| 90|95|
-#>          WT_THP      WT_GOR    WT_GLIR         WT_DEPTH WT_Enable
-#> 98 144.696|449| 1500|13115| 0.1|0.118| 3937.01|2795.28|      1|0|
-#>     WT_GDEPTH      WT_GPRES     WT_RESPRES
-#> 98 0|4429.13| 144.696|1180| 1214.7|1620.7|
-#>                                       ProsperFilename
-#> 98 \\\\network\\piscis\\well_models\\PISC-S013-LS.Out
+  myXl$Analyst[indices]
+#> [1] "Ibironke" "Rodrigo"  "Rodrigo"  "Rodrigo"  "Tom"      "Andrew"  
+#> [7] "Andrew"   NA
+  indices <- which(!myXl$Analyst %in% operators)
+  myXl$Analyst[indices]
+#> [1] NA
 ```
 
 There is only one observation left, the one with NA. We will have to cross-reference it. Let's find out who are the platform operators.
@@ -2089,33 +1038,32 @@ unique(myXl$Field)
 
 ``` r
 # verify for bad names in field
-grep("[^PISCO]", myXl$Field)      # which means those which are not named like PISCO
-#> [1] 12 27
+indices <- grep("[^PISCO]", myXl$Field)      # which means those which are not named like PISCO
+result <-  grep("[^PISCO]", myXl$Field, value = TRUE)
+df1 <- data.frame(indices, result)
+df1
+#>   indices result
+#> 1      12  pisco
+#> 2      27  pisco
 ```
 
 ``` r
 # which row index has NAs in it
-myXl[which(is.na(myXl$Field)), ]
-#>       Wellname       Company  Analyst Field Location Platform Fluid
-#> 7 PSCO-M016-LS Oil Gains Co. Ibironke  <NA>  M016-LS        M     0
-#>   WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 7        0         1          0           0        3 419.775      35
-#>   PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 7        1.2             15000       0      65           3             4
-#>   PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 7        209       1722       10        0      1459.5         214
-#>   IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI    GEO_THMD
-#> 7       3676     90         560       981.644  1.018 14.52|1954|
-#>   GEO_THTEMP GL_method                                  GL_ArrayMandrels
-#> 7    92|214|         0 676.82|1099.42|1444.92|1675.82|1731.22|0|0|0|0|0|
-#>   GL_Vdepth GL_GSG GL_CO2                           WT_DATE         WT_THT
-#> 7   1675.82    1.2     65 05/05/2014|13/04/2014|17/12/2013| 125.6|125|125|
-#>       WT_LIQRT     WT_WC       WT_THP          WT_GOR        WT_GLIR
-#> 7 560|558|558| 90|90|90| 261|290|290| 1233|1472|3676| 0.28|0.1|0.33|
-#>                   WT_DEPTH WT_Enable WT_GDEPTH     WT_GPRES
-#> 7 1675.82|1675.82|1675.82|    1|1|0|    0|0|0| 261|290|290|
-#>              WT_RESPRES                                    ProsperFilename
-#> 7 1459.5|1459.5|1459.5| \\\\network\\piscis\\well_models\\PISC-M016-LS.Out
+indices  <- which(is.na(myXl$Field))
+result   <- myXl$Field[indices]
+df2      <- data.frame(indices, result)
+df2
+#>   indices result
+#> 1       7   <NA>
+```
+
+``` r
+# combine both data frames
+rbind(df1, df2)
+#>   indices result
+#> 1      12  pisco
+#> 2      27  pisco
+#> 3       7   <NA>
 ```
 
 ``` r
@@ -2127,25 +1075,8 @@ myXl$Field[c(7,12,27)] <- "PISCO"
 #> integer(0)
   
 # which row index has NAs in it
-myXl[which(is.na(myXl$Field)), ]  
-#>  [1] Wellname          Company           Analyst          
-#>  [4] Field             Location          Platform         
-#>  [7] Fluid             WellType          AL_Method        
-#> [10] Completion        SandControl       WT_COUNT         
-#> [13] PVT_GOR           PVT_API           PVT_SG_gas       
-#> [16] PVT_WaterSalinity PVT_H2S           PVT_CO2          
-#> [19] PVT_PB_CORR       PVT_VISC_CORR     PVT_BPTEMP       
-#> [22] PVT_BPPRES        VLP_CORR          IPR_CORR         
-#> [25] IPR_RESPRES       IPR_RESTEMP       IPR_TOTGOR       
-#> [28] IPR_WC            IPR_VOGELRT       IPR_VOGELPRES    
-#> [31] IPR_PI            GEO_THMD          GEO_THTEMP       
-#> [34] GL_method         GL_ArrayMandrels  GL_Vdepth        
-#> [37] GL_GSG            GL_CO2            WT_DATE          
-#> [40] WT_THT            WT_LIQRT          WT_WC            
-#> [43] WT_THP            WT_GOR            WT_GLIR          
-#> [46] WT_DEPTH          WT_Enable         WT_GDEPTH        
-#> [49] WT_GPRES          WT_RESPRES        ProsperFilename  
-#> <0 rows> (or 0-length row.names)
+  which(is.na(myXl$Field))
+#> integer(0)
   
 # it has been fixed now  
 ```
@@ -2172,6 +1103,15 @@ substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))
 ``` r
 # assign the completion type to a new column
 myXl$Completion <- substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))
+myXl$Completion
+#>   [1] "TS" "TS" "LS" "TS" "SS" "TS" "LS" "LS" "LS" "LS" "SS" "SS" "SS" "LS"
+#>  [15] "TS" "LS" "SS" "SS" "LS" "TS" "LS" "SS" "SS" "SS" "SS" "LS" "LS" "SS"
+#>  [29] "SS" "LS" "SS" "LS" "SS" "LS" "LS" "TS" "LS" "LS" "SS" "LS" "SS" "SS"
+#>  [43] "SS" "TS" "SS" "LS" "SS" "LS" "SS" "TS" "LS" "SS" "SS" "LS" "SS" "SS"
+#>  [57] "LS" "SS" "TS" "SS" "LS" "LS" "SS" "SS" "TS" "LS" "SS" "SS" "TS" "SS"
+#>  [71] "LS" "SS" "LS" "LS" "TS" "SS" "LS" "SS" "LS" "TS" "TS" "LS" "SS" "LS"
+#>  [85] "SS" "TS" "SS" "SS" "LS" "TS" "SS" "LS" "LS" "SS" "TS" "SS" "SS" "LS"
+#>  [99] "TS" "TS"
 ```
 
 Location
@@ -2201,14 +1141,44 @@ myXl$Location
 pattern <- "[MQRS][0-9]{3}"
 
 # test that Location follows the pattern
-grep(pattern, myXl$Location, invert = TRUE)
-#> [1] 19
+indices <- grep(pattern, myXl$Location, invert = TRUE)
+myXl$Location[indices]
+#> [1] NA
+
+data.frame(indices, myXl$Wellname[indices], myXl$Location[indices])
+#>   indices myXl.Wellname.indices. myXl.Location.indices.
+#> 1      19           PSCO-M002-LS                   <NA>
 # there is one non-compliant index 
 # which matches what we see above
 ```
 
 ``` r
-myXl$Location <- substr(myXl$Wellname[19], nchar(myXl$Wellname[19])-6, nchar(myXl$Wellname[19])-3)
+myXl$Location[indices]  # before
+#> [1] NA
+myXl$Location[indices] <- substr(myXl$Wellname[indices], 
+                                 nchar(myXl$Wellname[indices])-6, 
+                                 nchar(myXl$Wellname[indices]))
+myXl$Location[indices]  # after
+#> [1] "M002-LS"
+```
+
+``` r
+myXl$Location
+#>   [1] "M005-TS" "M007-TS" "M004-LS" "M008-TS" "M010-SS" "M006-TS" "M016-LS"
+#>   [8] "M018-LS" "M021-LS" "M017-LS" "M030-SS" "M027-SS" "M016-SS" "M020-LS"
+#>  [15] "M028-TS" "M015-LS" "M018-SS" "M015-SS" "M002-LS" "M012-TS" "Q007-LS"
+#>  [22] "Q001-SS" "Q005-SS" "Q011-SS" "Q002-SS" "Q002-LS" "Q003-LS" "Q004-SS"
+#>  [29] "Q009-SS" "Q019-LS" "Q032-SS" "Q028-LS" "Q028-SS" "Q029-LS" "Q032-LS"
+#>  [36] "Q024-TS" "Q018-LS" "Q017-LS" "Q013-SS" "Q014-LS" "Q017-SS" "Q014-SS"
+#>  [43] "Q018-SS" "Q012-TS" "R009-SS" "R015-LS" "R019-SS" "R019-LS" "R020-SS"
+#>  [50] "R013-TS" "R012-LS" "R012-SS" "R018-SS" "R018-LS" "R015-SS" "R020-SS"
+#>  [57] "R004-LS" "R001-SS" "R003-TS" "R006-SS" "R007-LS" "R001-LS" "R007-SS"
+#>  [64] "R002-SS" "R029-TS" "R027-LS" "R025-SS" "R023-SS" "R022-TS" "R021-SS"
+#>  [71] "R023-LS" "R027-SS" "S008-LS" "S004-LS" "S027-TS" "S019-SS" "S007-LS"
+#>  [78] "S011-SS" "S016-LS" "S002-TS" "S002-TS" "S019-LS" "S030-SS" "S018-LS"
+#>  [85] "S026-SS" "S029-TS" "S018-SS" "S013-SS" "S015-LS" "S031-TS" "S032-SS"
+#>  [92] "S030-LS" "S032-LS" "S006-SS" "S021-TS" "S016-SS" "S015-SS" "S012-LS"
+#>  [99] "M001-TS" "M026-TS"
 ```
 
 ``` r
@@ -2223,712 +1193,25 @@ Platform
 
 ``` r
 # verify which indices do not comply for platform
-grep("[MQRS]", myXl$Platform, invert = TRUE)
-#> [1]  99 100
+x <- myXl$Platform
+pattern <- "[MQRS]"
+
+indices <- grep(pattern, x, invert = TRUE)
+values  <- grep(pattern, x, invert = TRUE, value = TRUE)
+data.frame(indices, values, myXl$Wellname[indices])
+#>   indices values myXl.Wellname.indices.
+#> 1      99   <NA>           PSCO-M001-TS
+#> 2     100   <NA>           PSCO-M026-TS
 # only two not following
 # since the well name is already corrected, let's use it
 ```
 
 ``` r
+# extract the platform from the well name
 myXl$Platform <- substr(myXl$Wellname, nchar(myXl$Wellname)-6, nchar(myXl$Wellname)-6)
 
 # verify which indices do not comply for platform
 grep("[MQRS]", myXl$Platform, invert = TRUE)
 #> integer(0)
 # we are done here
-```
-
-``` r
-# load the library xlsx
-library(xlsx)
-
-# read the raw data
-myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx", 1)
-
-# lowercase to uppercase
-  myXl$Wellname <- toupper(myXl$Wellname)
-
-
-
-# removing spaces
-  myXl$Wellname <- gsub(" ", "", myXl$Wellname)
-
-  
-  
-
-# complete the completion type
-# We have three completion type: SS, LS and TS
-
-  myXl$Wellname <- gsub("-L$", "-LS", myXl$Wellname)    # the dollar sign at the end, means that 
-  myXl$Wellname <- gsub("-S$", "-SS", myXl$Wellname)    # we are checking at the end of the string
-  myXl$Wellname <- gsub("-T$", "-TS", myXl$Wellname)
-
-# show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150      0|1744|
-#> 45      1435.0     80         0.0         0.000  3.000   0|1667.08|
-#> 66       762.0     60      1179.3      1031.980  4.400 0|2252|2580|
-#> 75       700.0      2      1075.0       736.188  1.550   0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471      0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 45      65
-#> 66      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 45     \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66     \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
-```
-
-``` r
-# remove non compliant field names
-  # myXl$Wellname <- gsub("(^[PSCO])", "PSCO", myXl$Wellname)
-
-# show the wells with issues
-  myXl[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", myXl$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150      0|1744|
-#> 45      1435.0     80         0.0         0.000  3.000   0|1667.08|
-#> 66       762.0     60      1179.3      1031.980  4.400 0|2252|2580|
-#> 75       700.0      2      1075.0       736.188  1.550   0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471      0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 45      65
-#> 66      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 45     \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66     \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
-```
-
-``` r
-# test
-test <- c("PiSCO", "pISCO", "PSCO")
-
-gsub("^(PSCO)", "PSCO", test)
-#> [1] "PiSCO" "pISCO" "PSCO"
-```
-
-``` r
-# show wells that do have incorrect field name
-myXl[!grepl("^PSCO-", myXl$Wellname), ]
-#>         Wellname       Company Analyst Field Location Platform Fluid
-#> 45 PISCO-R009-SS Oil Gains Co.    Aida PISCO  R009-SS        R     0
-#> 66 PISCO-R027-LS Oil Gains Co.  Norman PISCO  R027-LS        R     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 45        0         1          0           0       15 420.000      36
-#> 66        0         1          0           0        2 472.896      36
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 45        1.2             25000       0      65           3             2
-#> 66        1.2             15000       0      65           3             2
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 45        209     1722.0       10        0     1546.00      209.00
-#> 66        209     1935.7       10        1     1373.09      215.77
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 45       1435     80         0.0          0.00    3.0   0|1667.08|
-#> 66        762     60      1179.3       1031.98    4.4 0|2252|2580|
-#>               GEO_THTEMP GL_method
-#> 45               90|209|         0
-#> 66 81.446|207.78|217.64|         2
-#>                                      GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 45 187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|    1241.1    1.2
-#> 66       808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|       0.0    1.2
-#>    GL_CO2
-#> 45     65
-#> 66     65
-#>                                                                                                                                                                  WT_DATE
-#> 45 06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                18/05/2013|23/12/2014|
-#>                                                          WT_THT
-#> 45 120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                     165|135|
-#>                                                                                          WT_LIQRT
-#> 45 1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                 2253.2|1179.3|
-#>                                                                             WT_WC
-#> 45 90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                         60|60|
-#>                                                                              WT_THP
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                       246.6|232|
-#>                                                                                                   WT_GOR
-#> 45 5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                          2368.52|762|
-#>                                                          WT_GLIR
-#> 45 0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                    0.19|0.24|
-#>                                                                                                     WT_DEPTH
-#> 45 1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                            2252.5|2252.5|
-#>                         WT_Enable                      WT_GDEPTH
-#> 45 1|1|1|1|1|1|1|1|1|1|1|1|1|1|0| 0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                           1|0|                 2517.8|2517.9|
-#>                                                                            WT_GPRES
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                  1211.51|1047.2|
-#>                                                                     WT_RESPRES
-#> 45 1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                               1373.09|1373|
-#>                                       ProsperFilename
-#> 45 \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66 \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-```
-
-``` r
-# same but saving the data frame
-df <- myXl
-pattern <- "^(?!PSCO)"
-myXl[grepl(pattern, myXl$Wellname, perl = TRUE), ]
-#>         Wellname       Company Analyst Field Location Platform Fluid
-#> 45 PISCO-R009-SS Oil Gains Co.    Aida PISCO  R009-SS        R     0
-#> 66 PISCO-R027-LS Oil Gains Co.  Norman PISCO  R027-LS        R     0
-#>    WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 45        0         1          0           0       15 420.000      36
-#> 66        0         1          0           0        2 472.896      36
-#>    PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 45        1.2             25000       0      65           3             2
-#> 66        1.2             15000       0      65           3             2
-#>    PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 45        209     1722.0       10        0     1546.00      209.00
-#> 66        209     1935.7       10        1     1373.09      215.77
-#>    IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 45       1435     80         0.0          0.00    3.0   0|1667.08|
-#> 66        762     60      1179.3       1031.98    4.4 0|2252|2580|
-#>               GEO_THTEMP GL_method
-#> 45               90|209|         0
-#> 66 81.446|207.78|217.64|         2
-#>                                      GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 45 187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|    1241.1    1.2
-#> 66       808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|       0.0    1.2
-#>    GL_CO2
-#> 45     65
-#> 66     65
-#>                                                                                                                                                                  WT_DATE
-#> 45 06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                18/05/2013|23/12/2014|
-#>                                                          WT_THT
-#> 45 120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                     165|135|
-#>                                                                                          WT_LIQRT
-#> 45 1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                 2253.2|1179.3|
-#>                                                                             WT_WC
-#> 45 90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                         60|60|
-#>                                                                              WT_THP
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                       246.6|232|
-#>                                                                                                   WT_GOR
-#> 45 5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                          2368.52|762|
-#>                                                          WT_GLIR
-#> 45 0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                    0.19|0.24|
-#>                                                                                                     WT_DEPTH
-#> 45 1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                            2252.5|2252.5|
-#>                         WT_Enable                      WT_GDEPTH
-#> 45 1|1|1|1|1|1|1|1|1|1|1|1|1|1|0| 0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                           1|0|                 2517.8|2517.9|
-#>                                                                            WT_GPRES
-#> 45 217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                  1211.51|1047.2|
-#>                                                                     WT_RESPRES
-#> 45 1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                               1373.09|1373|
-#>                                       ProsperFilename
-#> 45 \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66 \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-```
-
-``` r
-# attempt to replace PISCO. nOT WORKING
-df <- myXl
-pattern <- "(?!PSCO+)"
-df$Wellname <- gsub(pattern, "\\1", df$Wellname, perl = TRUE)
-
-df[!grepl("PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150      0|1744|
-#> 45      1435.0     80         0.0         0.000  3.000   0|1667.08|
-#> 66       762.0     60      1179.3      1031.980  4.400 0|2252|2580|
-#> 75       700.0      2      1075.0       736.188  1.550   0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471      0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 45      65
-#> 66      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 45     \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66     \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
-```
-
-``` r
-# show wellls that do not comply with well naming pattern
-df[!grepl("PSCO-[M,O,P,Q,R,S][0-9][0-9][0-9]-[T,L,S]S", df$Wellname),]
-#>          Wellname       Company  Analyst Field Location Platform Fluid
-#> 2   PSCO-M0007-TS Oil Gains Co.     Aida PISCO  M007-TS        M     0
-#> 45  PISCO-R009-SS Oil Gains Co.     Aida PISCO  R009-SS        R     0
-#> 66  PISCO-R027-LS Oil Gains Co.   Norman PISCO  R027-LS        R     0
-#> 75    PSCO-027-TS Oil Gains Co.   Andrew PISCO  S027-TS        S     0
-#> 100 PSCO-M0026-TS Oil Gains Co. Ibironke PISCO  M026-TS     <NA>     0
-#>     WellType AL_Method Completion SandControl WT_COUNT PVT_GOR PVT_API
-#> 2          0         1          0           0       22 473.000    36.0
-#> 45         0         1          0           0       15 420.000    36.0
-#> 66         0         1          0           0        2 472.896    36.0
-#> 75         0         1          1           3        7 455.183    36.1
-#> 100        0         1          0           0        2 472.896    36.0
-#>     PVT_SG_gas PVT_WaterSalinity PVT_H2S PVT_CO2 PVT_PB_CORR PVT_VISC_CORR
-#> 2          1.2             25000       0      65           3             2
-#> 45         1.2             25000       0      65           3             2
-#> 66         1.2             15000       0      65           3             2
-#> 75         1.3             10000       0      74           3             1
-#> 100        1.2             15000       0      65           3             2
-#>     PVT_BPTEMP PVT_BPPRES VLP_CORR IPR_CORR IPR_RESPRES IPR_RESTEMP
-#> 2          209   1921.000       10        0     1300.00     209.000
-#> 45         209   1722.000       10        0     1546.00     209.000
-#> 66         209   1935.700       10        1     1373.09     215.770
-#> 75         208   1850.696       10        1     1695.70     217.999
-#> 100        209   1921.000       10        0     1600.00     210.000
-#>     IPR_TOTGOR IPR_WC IPR_VOGELRT IPR_VOGELPRES IPR_PI     GEO_THMD
-#> 2       1581.5     70       973.7       956.000  1.150      0|1744|
-#> 45      1435.0     80         0.0         0.000  3.000   0|1667.08|
-#> 66       762.0     60      1179.3      1031.980  4.400 0|2252|2580|
-#> 75       700.0      2      1075.0       736.188  1.550   0|5141.08|
-#> 100     1009.0     80       784.6      1043.270  1.471      0|1593|
-#>                GEO_THTEMP GL_method
-#> 2                 90|200|         0
-#> 45                90|209|         0
-#> 66  81.446|207.78|217.64|         2
-#> 75               104|218|         2
-#> 100               80|224|         0
-#>                                       GL_ArrayMandrels GL_Vdepth GL_GSG
-#> 2                614.3|1118|1422.5|1564.6|0|0|0|0|0|0|   1564.60    1.2
-#> 45  187.513|298.948|378.287|436.992|480.974|0|0|0|0|0|   1241.10    1.2
-#> 66        808.4|1423.9|1834.9|2175.7|2252.5|0|0|0|0|0|      0.00    1.2
-#> 75   1532.15|2408.14|3133.2|3697.51|4501.31|0|0|0|0|0|   4501.31    1.2
-#> 100                  569|865|1094|1276|1424|0|0|0|0|0|   1404.00    1.2
-#>     GL_CO2
-#> 2       65
-#> 45      65
-#> 66      65
-#> 75      65
-#> 100     65
-#>                                                                                                                                                                                                                                                WT_DATE
-#> 2   09/06/2014|21/08/2014|06/02/2012|17/03/2012|11/07/2012|10/08/2012|03/09/2012|05/10/2012|18/11/2012|22/01/2013|11/03/2013|10/04/2013|18/06/2013|04/07/2013|30/07/2013|23/09/2013|14/10/2013|10/11/2013|18/04/2014|21/07/2014|21/08/2014|06/09/2014|
-#> 45                                                                               06/04/2013|18/06/2013|06/07/2013|26/08/2013|16/09/2013|08/11/2013|08/11/2013|08/11/2013|12/04/2014|18/06/2014|21/08/2014|30/08/2014|12/09/2014|22/11/2014|30/12/2014|
-#> 66                                                                                                                                                                                                                              18/05/2013|23/12/2014|
-#> 75                                                                                                                                                                       21/11/2013|15/04/2014|04/05/2014|12/06/2014|15/04/2014|15/01/2015|15/01/2015|
-#> 100                                                                                                                                                                                                                             07/09/2014|13/07/2014|
-#>                                                                                       WT_THT
-#> 2   125|125|125|125|135|125|125|127|125|125|125|125|125|125|125|125|125|125|125|125|125|122|
-#> 45                              120|120|120|120|120|120|120|120|120|120|120|120|120|120|153|
-#> 66                                                                                  165|135|
-#> 75                                                          114.8|149|149|141|110|154.4|140|
-#> 100                                                                                 125|143|
-#>                                                                                                                             WT_LIQRT
-#> 2   560|528|711.2|790.6|973.7|732.4|402.5|747.8|793.5|958.9|1190.5|1135.3|909.1|1006.4|980|1013.9|550.6|551.7|591.3|528.3|528.3|560|
-#> 45                                    1782.8|1197.9|1175.4|1586.8|1175.4|1174|1824|1805.4|133.7|772.9|1000.8|1000|1220.9|888.4|1342|
-#> 66                                                                                                                    2253.2|1179.3|
-#> 75                                                                                              339|1261|687|1075|212|1159.1|1159.1|
-#> 100                                                                                                                      784.6|1200|
-#>                                                                                                                          WT_WC
-#> 2   70|68|65.94|80.83|75.97|74.75|75.96|75.97|73.09|77.8|76.95|76.94|61.26|75.97|71.09|71.09|71.11|71.1|67.31|68.5|68.5|70.01|
-#> 45                                              90.45|85.89|85.64|80.83|85.64|85.69|79.99|80.83|79.94|83.34|80|80|85.01|80|80|
-#> 66                                                                                                                      60|60|
-#> 75                                                                                                       2|0.9|14|0|2|4.9|4.9|
-#> 100                                                                                                                     80|80|
-#>                                                                                                                        WT_THP
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                                 246.6|232|
-#> 75                                                                   173.696|214.696|188.696|246.696|269.696|217.696|217.696|
-#> 100                                                                                                                  290|522|
-#>                                                                                                                                              WT_GOR
-#> 2   4160|3974|1624.7|336.5|1581.5|287.5|1581|1581.8|1053|1265.5|1265.9|1160.1|759.6|1160.2|1160.1|1632.6|2974.1|4081.5|1759.7|3974.1|3974.1|3831.9|
-#> 45                                            5763.4|2132.7|1532.9|718.3|2392.9|5214.8|2466.9|1462.2|3358|5126.2|1090.9|3321.9|583.3|1254.6|1435.2|
-#> 66                                                                                                                                     2368.52|762|
-#> 75                                                                                                                    2626|586|950|700|500|660|500|
-#> 100                                                                                                                                      1009|2378|
-#>                                                                                         WT_GLIR
-#> 2   0.5|0.6|0.1|0.1|0.25|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.1|0.265|
-#> 45                                0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.2|0.27|
-#> 66                                                                                   0.19|0.24|
-#> 75                                                           0.04|0.6|0.56|0.75|0.06|0.48|0.35|
-#> 100                                                                                    0.2|0.2|
-#>                                                                                                                                                       WT_DEPTH
-#> 2   1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|1564.6|
-#> 45                                                   1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|1241.1|
-#> 66                                                                                                                                              2252.5|2252.5|
-#> 75                                                                                                    4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|4501.31|
-#> 100                                                                                                                                                 1404|1404|
-#>                                        WT_Enable
-#> 2   1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 45                1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|
-#> 66                                          1|0|
-#> 75                                1|1|1|1|1|1|0|
-#> 100                                         0|1|
-#>                                        WT_GDEPTH
-#> 2   0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 45                0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|
-#> 66                                2517.8|2517.9|
-#> 75              0|0|0|5141.08|5141.08|0|5141.08|
-#> 100                                         0|0|
-#>                                                                                                                      WT_GPRES
-#> 2   246.5|1189|246.6|203|232.1|232.1|246.6|246.6|203|290.1|290.1|261.1|246.6|232.1|232.1|203|217.6|246.6|217.5|203|203|246.5|
-#> 45                                           217.6|275.6|290.1|290.1|261.1|319|319|319.1|145|203|217.5|217.5|261.1|261.1|261|
-#> 66                                                                                                            1211.51|1047.2|
-#> 75                                                                   173.696|214.696|188.696|736.188|738.696|217.696|584.258|
-#> 100                                                                                                                  290|522|
-#>                                                                                                         WT_RESPRES
-#> 2   1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|1300|
-#> 45                                     1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|1546|
-#> 66                                                                                                   1373.09|1373|
-#> 75                                                               1714.7|1698.7|1695.7|1695.7|1695.7|1695.7|1695.7|
-#> 100                                                                                                     1600|1600|
-#>                                           ProsperFilename
-#> 2      \\\\network\\piscis\\well_models\\PISC-M007-TS.Out
-#> 45     \\\\network\\piscis\\well_models\\PISC-R009-SS.Out
-#> 66     \\\\network\\piscis\\well_models\\PISC-R027-LS.Out
-#> 75        \\\\network\\piscis\\well_models\\PISC-S027.Out
-#> 100 \\\\network\\piscis\\well_models\\PISC-M026S01-TS.Out
 ```

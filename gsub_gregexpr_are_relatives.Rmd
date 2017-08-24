@@ -1,0 +1,76 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## positive look-behind
+
+`gregexpr` and `gsub` are relatives
+
+We want to replace one zero `0` by a blank if it followed by a `M`.
+
+```{r}
+v <- c("PSCO-M0007-TS", "PSCO-M0026-TS")
+pattern = "(?<=M)0"      # positive look behind, matches the `0` only but not the `M`
+replace = ""
+
+gsub(pattern, replace, v, perl = TRUE)
+```
+
+How do we know it is working?
+
+We have to use `gregexpr`.
+It informs that at a certain character position a string of some length is matched.
+In the example, at position `7` there will e found `1` character that matches.
+
+```{r}
+gregexpr(pattern, x, perl = TRUE)
+```
+
+This would not work for a well "PSCO-Q0023-TS"
+
+```{r}
+v <- c("PSCO-M0007-TS", "PSCO-M0026-TS", "PSCO-Q0023-TS")
+pattern = "(?<=M)0"      # positive look behind, matches the `0` but not the `M`
+replace = ""
+
+gsub(pattern, replace, v, perl = TRUE)
+```
+
+
+We have to modify the pattern:
+
+```{r}
+v <- c("PSCO-M0007-TS", "PSCO-M0026-TS", "PSCO-Q0023-TS")
+pattern = "(?<=[MQ])0"      # positive look behind, matches the `0` but not the `M`
+replace = ""
+
+gsub(pattern, replace, v, perl = TRUE)
+```
+
+If we have 4 platforms, then:
+
+```{r}
+v <- c("PSCO-M0007-TS", "PSCO-M0026-TS", "PSCO-Q0023-TS", "PSCO-R0003-TS", "PSCO-T0230-TS")
+pattern = "(?<=[MQRT])0"      # positive look behind, matches the `0` but not the `M`
+replace = ""
+
+gsub(pattern, replace, v, perl = TRUE)
+```
+
+
+> But it would not work for a standard well:. We will have to fix that.
+
+```{r}
+v <- c("PSCO-M007-TS", "PSCO-R043-TS")
+pattern = "(?<=[MQRT])0"      # positive look behind, matches the `0` but not the `M`
+replace = ""
+
+gsub(pattern, replace, v, perl = TRUE)
+```
+
+
+
+
+
+

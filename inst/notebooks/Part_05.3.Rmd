@@ -1,8 +1,11 @@
 ---
+title: "Finding and filling missing well data: alphanumerics"
 output:
-  html_document:
+  pdf_document:
     toc: yes
   html_notebook:
+    toc: yes
+  html_document:
     toc: yes
 ---
 
@@ -13,7 +16,7 @@ knitr::opts_chunk$set(echo=T, comment=NA, error=T, warning=F, message = F, fig.a
 ```
 
 
-# Finding and filling missing data: alphanumeric
+## Load the raw data file
 
 ```{r}
 # load the library xlsx
@@ -24,67 +27,6 @@ myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx",
                   sheetIndex = 1, stringsAsFactors=FALSE)
 ```
 
-## Mistyped data
-One of the challenges in cleaning up well data is having uniform and standard well names. This becomes important at the time of classification, ranking and selection. An example of this is when looking for the **top 20** oil producers or wells with higher **watercut** or **GOR** or wells with highest or lowest gas injection rate **GLIR** (gas lift wells). If a well name is not correct you may encounter repeated occurrences of the well, a wrong classificatio, or a well that should have received attention but did not. Besides, how good an analysis can be if we start with typos in the well names, or the well everyone is expecting doesn't show up in the plot or summary?
-
-One of the first things to do, if we are folowing a well name standard, internal or API, is finding if all the wells in the raw data file are compliant with that standard. One way of doing it is comparing the well names with a **pattern**. In R there are several functions that use patterns for name verification and correction. We will be using a few: `grep`, `grepl`, `gsub`, `gregexpr`, and couple more from the R package `stringr`.
-
-Let's start then defining the pattern of a well name.
-
-## Pattern detection
-If we take a look at the well name in the picture at the top we see that the naming should follow these rules:
-
-* the first 4 alphabetic characters represent the abbreviation of the field
-* then , there is dash
-* after the dash comes one character for the platform
-* then 3 digits, from 000 to 999 that represent the well number
-* then a dash
-* and finally, two alphabetic characters for the completion type
-
-So, there is a total of 10 significant identifiers plus 2 dashes.
-
-If we use `regular expressions` or `regex` in its simplest form the wells should follow this pattern:
-
-           PSCO-[M,Q,R,S][0-9][0-9][0-9]-[T,L,S]S
-   
-```{r rows.print=15}
-# using a template to find out which well names do not follow a pattern
-  x       <- myXl$Wellname
-  pattern <- "PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S"
-  values  <- grep(pattern, x, value = TRUE, invert = TRUE)
-  indices <- grep(pattern, x, invert = TRUE)
-  data.frame(indices, values)
-```
-
-
-If we want to add another column for extra information just add the column with the indices
-
-```{r rows.print=15}
-# add a column using the indices
-data.frame(indices, values, myXl$Platform[indices])
-```
-
-
-The result is that we get the observations (rows) that have incorrect well names. They are 11 instances.
-
-This is much better than visually inspecting them in a spreadsheet, isn't it?
-
-### What's wrong with this alphanumeric data?
-
-What are the type of offences?
-
-* Incorrect well number: `PSCO-M0007-TS`, `PSCO-M0026-TS`
-* Platform omitted: `PSCO-027-TS`
-* Platform in lowercase: `PSCO-r015-LS`, `PSCO-m016-LS`
-* Incorrect field name: `PiSCO-R009-SS`, `PISCO-R027-LS`
-* Incorrect completion type: `PSCO-R022-T`, `PSCO-Q019-L`, `PSCO-Q001-S`
-* Extra spaces in the name: `PSCO-S019 -LS`
-* Missing data: in the columns: see the NAs in the picture?
-
-```{r, out.width = "500px", echo=F}
-knitr::include_graphics("./images/missing_data_02_03.jpg")
-```
-
 
 ## Fix the well name
 We will see that some well names can be fixed manually and others should be done automatically with a script.
@@ -93,7 +35,7 @@ In our particular case we only have 100 wells but what about if we have 1000, or
 
 > When correcting data, always go from the more general to the more particular.
 
-### lowercase to uppercase
+### convert lowercase to uppercase
 Let's convert the well names to uppercase and verify how many were corrected.
 
 ```{r}
@@ -173,6 +115,11 @@ At this point we have two choices: (1) change all the first 4 first characters t
     `PSCO-`  characters that follow    
     
     
+In the example we used `invert=TRUE` to negate the correct pattern. If we want the regex pattern including the negation we would have to use:
+
+```{r, out.width = "200px", echo=F}
+knitr::include_graphics("./images/negate_field_abbreviation.jpg")
+```
 
 #### option (1): change all the first 4 first characters to PSCO
 
@@ -190,7 +137,7 @@ At this point we have two choices: (1) change all the first 4 first characters t
 #### Explanation of the regex `^[^-]+`
     ^     start of the string
     [^-]  negate the class dash  
-    +     match at least one ocurrence
+    +     match at least one occurrence
 
 ```{r, out.width = "250px", echo=F}
 knitr::include_graphics("./images/regex_01.jpg")
@@ -220,10 +167,10 @@ knitr::include_graphics("./images/regex_01.jpg")
 knitr::include_graphics("./images/regex_02.jpg")
 ```
 
-### correct the length of the `well number`
 
-The well names have corrected on the field identifier.
-Next if correct the length of the well number.
+### correct the length of the `well number`
+The well names have been corrected on the field identifier.
+Next if correcting the length of the well number.
 
 ```{r}
 # show the wells with issues
@@ -243,7 +190,6 @@ There are still three more wells to go which problems are:
     PSCO-M0026-TS  long well number. It should be maximum of 3 digits
 
 
-### correcting longer `well number` (max= 3 digits)
 The well number should go from `000` to `999`, right after the field identifier (one character)
 
 ```{r}
@@ -345,7 +291,7 @@ myXl$Wellname
 ```
 
 
-### Company
+## Check if `Company` is correct
 The next variable or column is the "Company". It should be easy.
 
 ```{r results="hold"}
@@ -360,7 +306,7 @@ grep(pattern, x, value = TRUE, perl = TRUE)
 We don't get any return. All the company names are the same. Cool!
 
 
-### Analyst
+## Detect incorrect names and synonyms in `Analyst`
 The could use this variable to store the name of the analyst or the operator who supplied the data.
 
 ```{r}
@@ -437,7 +383,7 @@ myXl$Analyst[c(98)] = "Andrew"
 ```
 
 
-## Check the field
+## Find and replace incorrect and missing values in `Field`
 
 ```{r}
 unique(myXl$Field)
@@ -482,11 +428,11 @@ myXl$Field[c(7,12,27)] <- "PISCO"
 ```
 
 
-## Add a column for the Completion Type
+## Add a column for the `Completion` type
 To close this chapter, let's add a new variable (column) where we have only the **Completion Type**.
 We can take advantage that the last two characters of the well name is the completion type.
 
-We introduce here another function `nchar` which returns the number of characters of a string of text. The seond function is `substr`.
+We introduce here another function `nchar` which returns the number of characters of a string of text. The second function is `substr`.
 
     nchar(x)   number of character of the string
     
@@ -506,15 +452,18 @@ We introduce here another function `nchar` which returns the number of character
   myXl$Completion
 ```
 
-## Location
+## Replace values in `Location`
 
 ```{r}
 myXl$Location
 ```
 
+
+Observe that in this example we are using the pattern `[MQRS][0-9]{3}-[LTS]S` together with the parameter `invert=TRUE` in `grep`. This means that the pattern will be negated when `invert` is `TRUE`.
+
 ```{r results="hold"}
 # we can test it by not following pattern or those which are NA
-pattern <- "[MQRS][0-9]{3}"
+pattern <- "[MQRS][0-9]{3}-[LTS]S"
 
 # test that Location follows the pattern
 indices <- grep(pattern, myXl$Location, invert = TRUE)
@@ -524,6 +473,14 @@ data.frame(indices, myXl$Wellname[indices], myXl$Location[indices])
 # there is one non-compliant index 
 # which matches what we see above
 ```
+
+If we would like instead is the regex for the negated pattern it would have to look like this:
+
+```{r, out.width = "200px", echo=F}
+knitr::include_graphics("./images/negate_location.jpg")
+```
+
+You see that the words matched are those which do not match the correct pattern.
 
 ```{r}
 myXl$Location[indices]  # before
@@ -545,7 +502,7 @@ grep(pattern, myXl$Location, invert = TRUE)
 ```
 
 
-## Platform
+## Replace NA values in `Platform`
 
 ```{r}
 # verify which indices do not comply the platform letters
@@ -558,6 +515,14 @@ data.frame(indices, values, myXl$Wellname[indices])
 # only two not following
 # since the well name is already corrected, let's use it
 ```
+
+Again, if instead of using `invert=TRUE` in grep we coul have used the negation of the pattern which is:
+
+```{r, out.width = "200px", echo=F}
+knitr::include_graphics("./images/negate_platform.jpg")
+```
+
+What this regex does is match those words that do not contain a valid platform character.
 
 
 ```{r}

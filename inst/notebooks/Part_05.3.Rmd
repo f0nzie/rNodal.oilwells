@@ -1,5 +1,5 @@
 ---
-title: "Finding and filling missing well data: alphanumerics"
+title: 'Finding and filling missing well data: alphanumerics'
 output:
   html_document:
     keep_md: yes
@@ -13,7 +13,7 @@ output:
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r setup, include=F, error=T, message=F, warning=F}
-knitr::opts_chunk$set(echo=T, comment=NA, error=T, warning=F, message = F, fig.align = 'center', collapse=FALSE)
+knitr::opts_chunk$set(echo=T, comment="#:>", error=T, warning=F, message = F, fig.align = 'center', collapse=TRUE)
 ```
 
 
@@ -270,7 +270,7 @@ See in this example that as more zeros show up in the number (last line), those 
     
 
 ```{r, out.width = "250px", echo=F}
-knitr::include_graphics("./images/regex_03.jpg")
+knitr::include_graphics("./images/regex_04.jpg")
 ```
 
 ```{r results="hold"}
@@ -517,7 +517,7 @@ data.frame(indices, values, myXl$Wellname[indices])
 # since the well name is already corrected, let's use it
 ```
 
-Again, if instead of using `invert=TRUE` in grep we coul have used the negation of the pattern which is:
+Again, if instead of using `invert=TRUE` in grep we could have used the negation of the pattern which is:
 
 ```{r, out.width = "200px", echo=F}
 knitr::include_graphics("./images/negate_platform.jpg")

@@ -169,17 +169,17 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
   pattern &lt;- &quot;PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S&quot;
   indices &lt;- grep(pattern, x, invert = TRUE)
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
-  data.frame(indices, values)</code></pre>
-<pre><code>  indices        values
-1       2 PSCO-M0007-TS
-2      22   PSCO-Q001-S
-3      30   PSCO-Q019-L
-4      45 PISCO-R009-SS
-5      66 PISCO-R027-LS
-6      69   PSCO-R022-T
-7      75   PSCO-027-TS
-8      82 PSCO-S019 -LS
-9     100 PSCO-M0026-TS</code></pre>
+  data.frame(indices, values)
+#:&gt;   indices        values
+#:&gt; 1       2 PSCO-M0007-TS
+#:&gt; 2      22   PSCO-Q001-S
+#:&gt; 3      30   PSCO-Q019-L
+#:&gt; 4      45 PISCO-R009-SS
+#:&gt; 5      66 PISCO-R027-LS
+#:&gt; 6      69   PSCO-R022-T
+#:&gt; 7      75   PSCO-027-TS
+#:&gt; 8      82 PSCO-S019 -LS
+#:&gt; 9     100 PSCO-M0026-TS</code></pre>
 <p>Two were corrected.</p>
 </div>
 <div id="removing-spaces" class="section level3">
@@ -196,16 +196,16 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
   pattern &lt;- &quot;PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S&quot;
   indices &lt;- grep(pattern, x, invert = TRUE)
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
-  data.frame(indices, values)  </code></pre>
-<pre><code>  indices        values
-1       2 PSCO-M0007-TS
-2      22   PSCO-Q001-S
-3      30   PSCO-Q019-L
-4      45 PISCO-R009-SS
-5      66 PISCO-R027-LS
-6      69   PSCO-R022-T
-7      75   PSCO-027-TS
-8     100 PSCO-M0026-TS</code></pre>
+  data.frame(indices, values)  
+#:&gt;   indices        values
+#:&gt; 1       2 PSCO-M0007-TS
+#:&gt; 2      22   PSCO-Q001-S
+#:&gt; 3      30   PSCO-Q019-L
+#:&gt; 4      45 PISCO-R009-SS
+#:&gt; 5      66 PISCO-R027-LS
+#:&gt; 6      69   PSCO-R022-T
+#:&gt; 7      75   PSCO-027-TS
+#:&gt; 8     100 PSCO-M0026-TS</code></pre>
 <p>One well name was corrected.</p>
 </div>
 <div id="correct-the-completion-type" class="section level3">
@@ -223,13 +223,13 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
   pattern &lt;- &quot;PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S&quot;
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
   indices &lt;- grep(pattern, x, invert = TRUE)
-  data.frame(indices, values)</code></pre>
-<pre><code>  indices        values
-1       2 PSCO-M0007-TS
-2      45 PISCO-R009-SS
-3      66 PISCO-R027-LS
-4      75   PSCO-027-TS
-5     100 PSCO-M0026-TS</code></pre>
+  data.frame(indices, values)
+#:&gt;   indices        values
+#:&gt; 1       2 PSCO-M0007-TS
+#:&gt; 2      45 PISCO-R009-SS
+#:&gt; 3      66 PISCO-R027-LS
+#:&gt; 4      75   PSCO-027-TS
+#:&gt; 5     100 PSCO-M0026-TS</code></pre>
 <p>Those were the easy ones. We had three corrections. There are 5 more to go.</p>
 </div>
 <div id="correcting-the-field-in-the-well-name" class="section level3">
@@ -242,10 +242,10 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
   pattern &lt;- &quot;^PSCO-&quot;
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
   indices &lt;- grep(pattern, x, invert = TRUE)
-  data.frame(indices, values)</code></pre>
-<pre><code>  indices        values
-1      45 PISCO-R009-SS
-2      66 PISCO-R027-LS</code></pre>
+  data.frame(indices, values)
+#:&gt;   indices        values
+#:&gt; 1      45 PISCO-R009-SS
+#:&gt; 2      66 PISCO-R027-LS</code></pre>
 <div id="explanation-of-the-regex-psco-" class="section level4">
 <h4>Explanation of the regex <code>^PSCO-</code></h4>
 <pre><code>`^`      start of the string
@@ -280,9 +280,9 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
 # replace on indexed wells
   myXl$Wellname[indices]
   myXl$Wellname[indices] &lt;- gsub(pattern, replaceBy, x[indices], perl = TRUE)
-  myXl$Wellname[indices]</code></pre>
-<pre><code>[1] &quot;PSCO-R009-SS&quot; &quot;PSCO-R027-LS&quot;
-[1] &quot;PSCO-R009-SS&quot; &quot;PSCO-R027-LS&quot;</code></pre>
+  myXl$Wellname[indices]
+#:&gt; [1] &quot;PSCO-R009-SS&quot; &quot;PSCO-R027-LS&quot;
+#:&gt; [1] &quot;PSCO-R009-SS&quot; &quot;PSCO-R027-LS&quot;</code></pre>
 </div>
 <div id="explanation-of-the-regex-is" class="section level4">
 <h4>Explanation of the regex <code>I(?&lt;!S)</code></h4>
@@ -299,11 +299,11 @@ myXl &lt;- read.xlsx(&quot;../extdata/oilfield_100w_raw_data.xlsx&quot;,
   pattern &lt;- &quot;PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S&quot;
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
   indices &lt;- grep(pattern, x, invert = TRUE)
-  data.frame(indices, values, platform = myXl$Platform[indices])</code></pre>
-<pre><code>  indices        values platform
-1       2 PSCO-M0007-TS        M
-2      75   PSCO-027-TS        S
-3     100 PSCO-M0026-TS     &lt;NA&gt;</code></pre>
+  data.frame(indices, values, platform = myXl$Platform[indices])
+#:&gt;   indices        values platform
+#:&gt; 1       2 PSCO-M0007-TS        M
+#:&gt; 2      75   PSCO-027-TS        S
+#:&gt; 3     100 PSCO-M0026-TS     &lt;NA&gt;</code></pre>
 <p>Alright. So far, we have corrected the field name in the well name. There are still three more wells to go which problems are:</p>
 <pre><code>PSCO-M0007-TS  long well number. It should be maximum of 3 digits
 PSCO-027-TS    missing platform number
@@ -315,26 +315,26 @@ PSCO-M0026-TS  long well number. It should be maximum of 3 digits</code></pre>
   
   values  &lt;- grep(pattern, x, value = TRUE, perl = TRUE)
   indices &lt;- grep(pattern, x, perl = TRUE)
-  data.frame(indices, values)</code></pre>
-<pre><code>  indices        values
-1       2 PSCO-M0007-TS
-2     100 PSCO-M0026-TS</code></pre>
+  data.frame(indices, values)
+#:&gt;   indices        values
+#:&gt; 1       2 PSCO-M0007-TS
+#:&gt; 2     100 PSCO-M0026-TS</code></pre>
 <p>See what we are going to replace:</p>
 <pre class="r"><code># what the pattern has detected is one zero at position 7, right after the field
-  gregexpr(pattern, values, perl = TRUE)</code></pre>
-<pre><code>[[1]]
-[1] 7
-attr(,&quot;match.length&quot;)
-[1] 1
-attr(,&quot;useBytes&quot;)
-[1] TRUE
-
-[[2]]
-[1] 7
-attr(,&quot;match.length&quot;)
-[1] 1
-attr(,&quot;useBytes&quot;)
-[1] TRUE</code></pre>
+  gregexpr(pattern, values, perl = TRUE)
+#:&gt; [[1]]
+#:&gt; [1] 7
+#:&gt; attr(,&quot;match.length&quot;)
+#:&gt; [1] 1
+#:&gt; attr(,&quot;useBytes&quot;)
+#:&gt; [1] TRUE
+#:&gt; 
+#:&gt; [[2]]
+#:&gt; [1] 7
+#:&gt; attr(,&quot;match.length&quot;)
+#:&gt; [1] 1
+#:&gt; attr(,&quot;useBytes&quot;)
+#:&gt; [1] TRUE</code></pre>
 <pre class="r"><code># replace well numbers that are long
 x         &lt;- myXl$Wellname
 pattern   &lt;-  &quot;(?=[0-9]{4,})0(?=0)&quot;      
@@ -346,9 +346,9 @@ myXl$Wellname[indices] &lt;- gsub(pattern, replaceBy, x[indices], perl = TRUE)</
   pattern &lt;- &quot;PSCO-[M,O,P,,Q,R,S][0-9][0-9][0-9]-[T,L,S]S&quot;
   values  &lt;- grep(pattern, x, value = TRUE, invert = TRUE)
   indices &lt;- grep(pattern, x, invert = TRUE)
-  data.frame(indices, values)</code></pre>
-<pre><code>  indices      values
-1      75 PSCO-027-TS</code></pre>
+  data.frame(indices, values)
+#:&gt;   indices      values
+#:&gt; 1      75 PSCO-027-TS</code></pre>
 <p>Very good. Now we have one well left.</p>
 <div id="explanation-of-the-regex-0-9400" class="section level4">
 <h4>Explanation of the regex <code>(?=[0-9]{4,})0(?=0)</code></h4>
@@ -368,14 +368,14 @@ myXl$Wellname[indices] &lt;- gsub(pattern, replaceBy, x[indices], perl = TRUE)</
   
   values  &lt;- grep(pattern, x, value = TRUE, perl = TRUE)
   indices &lt;- grep(pattern, x, perl = TRUE)
-  data.frame(indices, values, platform = myXl$Platform[indices])</code></pre>
-<pre><code>  indices      values platform
-1      75 PSCO-027-TS        S</code></pre>
+  data.frame(indices, values, platform = myXl$Platform[indices])
+#:&gt;   indices      values platform
+#:&gt; 1      75 PSCO-027-TS        S</code></pre>
 <div id="explanation-of-the-regex-psco-0" class="section level4">
 <h4>Explanation of the regex <code>(PSCO-)(?=0)</code></h4>
 <pre><code>(PSCO-)   group &quot;PSCO-&quot;&quot;
 (?=0)     look ahead the &quot;0&quot; </code></pre>
-<p><img src="data:image/jpeg;base64,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T84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAB57/APPGT84v/jlAFqgCrafcP/XSX/0a9AFqgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgCrafcP/AF0l/wDRr0AYOs+JW0q7i0+Cyu9QuJ4pJgtsbRQkcTRoxdru7tRktIuAhY9ScYoAgXxnaNYrfCK4815zarZlEW6N2pKtbbWkEO8FSTJ532fYPNE5hIkIBo2OuCaCa4vbe40sWoLSrdiEbUC7vMEtvNcW7rtBJ2TMyYxIqnAIBU0zxMdSlRRY38FtOu6C6mjiEUg271JRJ3urfcvK/a7e35wjYkZUIBUg8b2ssqfuLqOxml8iLUHWJbWSbcY1RR532kLJICkU0lslvK23y5WEkZcA7SgDHfW4I9RXSWDieSAzq2B5ZUMV253bt/DNjbjapO7IxQB4T8YPEVtrfhaG/hWSOIar5IEigOxiju49yqjOSshXdGPvlSNyK2VHrYCShUk5bcj8/tR0SWrfktTxsxi50oxitfaLsl8M9W3ZJd23Y4z4B3cX9tXMpYIkenzFy+U2AT2xJcPtKgDk7gOOeld2Pkp0U4/zq90017st07NfNHmZdCVOvJS/59tqzTTXNHZptP5M+odJ8UafrUhhtHk8wLvVZre4tzJHnHmw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0x9H1TzoGlivH04LaTtEftaHzlRz+5WC9aeZtuYnURSLQB9H0AFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQBVtPuH/rpL/6NegC1QAUAFABQAUAFABQB5X8W/DmoeJtIhtNLi+0TJdpKy7448IsM6lsyui8M6jAOec4wDj0sFVhRqOVR2Ti1s3reL6J9jycfRnXpKFJXamna6WnLJdWu6OI+EngXW/C+rzXeqW32eF7R4lbzYJMuZoGC4ildh8qMckY4xnJGevG4ilWpqNKV2pJ7NaWkuqXc4MBha2HqudWPKnBq94vXmi+jfZn0XXhH0oUAFABQAUAFAHMeM9Pn1bQNSsLNfMuLvT7uCFMqu+SW3kSNdzlVXczAZZgozkkDJoA6egAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAKtp9w/9dJf/Rr0AWqACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAKtp9w/8AXSX/ANGvQBaoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAq2n3D/10l/9GvQBaoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAq2n3D/wBdJf8A0a9AFqgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgCrafcP/XSX/0a9AFqgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAP/9k=" width="250px" style="display: block; margin: auto;" /></p>
+<p><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAAEAYABgAAD//gAfTEVBRCBUZWNobm9sb2dpZXMgSW5jLiBWMS4wMQD/2wCEAAUFBQgFCAwHBwwMCQkJDA0MDAwMDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0BBQgICgcKDAcHDA0MCgwNDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDf/EAaIAAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKCwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoLEAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+foRAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/AABEIANEA8AMBEQACEQEDEQH/2gAMAwEAAhEDEQA/APsegAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgDF8R/8gu8/wCvab/0W1AHn0Ntarc2FtZ6Z/ZF27pMtyUs4g8UQBnjV7aaRpHlQlfJcDKsZGACZoA07DV9Y1GVbuCK6MRuWjMZ/s9bQQpK0TncZftwlVVLk4wXBUQ7SDQAr6jqJS31EXRVLnUFtzbeVD5aQ+c8W1WMfneaQmXZpGHL7ETCkAFmHWrxrW3lMnzyas9sx2pzCLiZAmNuB8qKNwAfjO7JJIBiafezpZQ21pNdLL/pL+TZ28DyHNzMBJLPdhraKIbWARjFI7A7HbGygDV0PVL/AFqWyWWdoVk0+K6lEUcP7yXzNjAl0l2o4PzBMHIGx05yAWfFFl9u1Gyi+zWt9+7uj5V222LjyPmz5Fx8wzgfu+hPzDuAFzHN4d017u2t7TTWglWV7e0KtFcoNqtGWNrAwlkB2x7E3eYIxvZSVoArW+oahqX2Apd+SupfaJX8uOFjFGqK0cMRkjYb4+jtIrkt5mVACBABlnqmoX95DpxuWiCPfRyTRxw75vsskAjb95HJGrMshEuxApO/YqfLsAG6Zq2s6jJHeQxXTQyTsjRt/Z62iwiRoywIl+3eagG8lgQzhlEKqw2gEtjqWpw3DW15JNHeypN5MM8EJs5JAHaP7Nc24DKqhCWjupGnZDnapBagDNuNXuorC8gvJLj7UkCv5F9a23BDIHeGSBPss8GXVdh82RG5dhnFAGnLqt8YLjV0n8uO0uWhW02ReU8cUoifzHKGcSyZZ0ZJURf3YMbjdvAIbjU9RiNzeC5YR2upRWy2/lQ+W0UjwIwdjGZiw81irJImMDcH5yAek0AFABQAUAFABQAUAFABQAUAFABQAUAFAEFzbx3cT28w3RyqyOuSMqwIYZBBGQeoIPoaAKt5pVrfxJBOm5IWR48Mysjx/cZHRldSOmQwJBIOQSCAVP8AhHbEXButjbzJ5pTzZvIMox+8Nv5n2cyZAbf5W7eA+d4zQBzg8LTTXyzzR28UUd0bnfFPctvYMSuLKQfZoJHyPOmSR2fD4A80lQDoP+EZ04T/AGny23+d9oA82by1m6mVIfM8pHbneyIC+W353HIA1vCumsFHlugQMuEmnQOruZGSUJKomjLsx8uXenzMAuCQQC3Y6JZ6YUNrH5Zhh8hPmdtsW7eEAZiMBuh6gYUEKAKAF1HRrbU2SSfzQ8O4I0M89uwD43DdBJGxB2jIJI4HFAEMXh6zi2Z8+XypFmUTXV1OBIoIU4mmkBAySFOVDYfG5VIAMq+8JQXN1byRDyoIpbiaUJNNE/mToBuhaNgYyWBLiN4wdzHBLtkA27bRbOzaJ4Y9rWyyJGdzkgSlWkLEsd7Oyhmd9zlssWyzEgEC+HLBJzciNtxkMuzzZvI809ZPs5k+ziTPzbxFu3/PndzQAyDwzp1sxZI2YFXQJJLNJEiyf6xYoZJHihDDgiJEG35fu8UANj8LadFHJDskkWZBE3mz3ErCNTuEaPLK7xpnnZGyqSASOBQBNJ4dsJbj7W8Z8zcrlRJKImkTASR4A4gkkXC7ZHjZxtQhsouACZ9Fs3SSNo8rPMtxINz/ADSqyMr53ZGDGh2jCnHIwTkA1aACgAoAKACgAoAKACgAoAKACgAoAKACgCOSQRKXbJA/uqzHk44VQWP4DgcnigCIXSYU4k/eHA/dScc4+YbMoPd9oI5BxzQAfakAY4k/dnB/dSc5OPl+T5x7puAHJ45oAUXCllQB8uNw/dyAAcn5m27VPH3WIboMZIoAZ9sjCb8SYztx5Mu7OM/d2bsf7WNueM5oAkNwqsUw+VG4/u3xjrw23ax5+6pLdsZBoAaLtMKcSfOcD91JkYOPmGzKD3faCOQcc0ABukG7iT931/dSc84+X5Pn/wCAbuOenNACi4Usq4fLjI/dyAAf7R24Q8dGIPtyKAGfbECb8SYB248qXdnr93Zux/tAbe2c0ASG4UMUw+VG4/u3xjrw23aT/sglu2M0AM+1phTiTDnA/dS564+YbMqPdgARznFACm6QbuH/AHfX93Jzzj5fk+f/AIBu456UAKLlMquHy4yP3cgA/wB47cIfZiD7c0AN+2IFL4kwDj/VS5z7Ls3Ef7QBHvQA/wC0KGKYfIG7/VvjHXhtu0n/AGQd3bGaAGfa0wrYkwxwP3UufxGzKj3YAe9ACm5Qbhh/3fX93Jz/ALvy/P8A8A3etACi5QlQA/zjI/dyAD/eO3CH2faaAG/a0Cl8SYU4P7qXOfZdm4j3AI96AH/aF3bMPnG7/VvjHX723bn/AGc7s8YzQAz7Wm0NiTDHA/dS5z7jZlR7sAPegBxuUBYYf5Ov7uT/AMdO3D/8A3UAAuUJUAP8/T93IMf7x24T/ge2gBv2tApbEmFOD+6lzn2GzLD3UEe9AD/tC7tmHzjd/q3xjr97btz/ALOd3bGaAGfa02h8SYY4H7qXOfddm4D3IA96AHG5QFhh/kGT+7kx/wABO3Dn2TcaAAXKfKMP8/T93Jx/vfL8n/A9tAFigAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgCreZ8vAJGXjHBIODIoPIwRkEjg0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AH2RPWT/v7L/8AF0AWqAKt39wf9dIv/RqUAWqACgCq1ztJGOhx1/8ArVg6lm1b8f8AgHM6tm1bZ9/+AN+1f7P6/wD1qXtfL8f+AT7by/H/AIAfav8AZ/X/AOtR7Xy/H/gB7by/H/gB9q/2f1/+tR7Xy/H/AIAe28vx/wCAH2r/AGf1/wDrUe18vx/4Ae28vx/4Afav9n9f/rUe18vx/wCAHtvL8f8AgB9q/wBn9f8A61HtfL8f+AHtvL8f+AH2r/Z/X/61HtfL8f8AgB7by/H/AIAfav8AZ/X/AOtR7Xy/H/gB7by/H/gB9q/2f1/+tR7Xy/H/AIAe28vx/wCAH2r/AGf1/wDrUe18vx/4Ae28vx/4Afav9n9f/rUe18vx/wCAHtvL8f8AgB9q/wBn9f8A61HtfL8f+AHtvL8f+AH2r/Z/X/61HtfL8f8AgB7by/H/AIBNFL5ueMYrSMua+lrG0J899LWJq0NQoAKACgAoAKACgAoAKACgAoAKAKt39wf9dIv/AEalAFqgDFv5HluobSJmXrJIVJU7F4AyMHDHjH0pgcV4o36pq1pou5o4H8y7uNjFGdYWAjQMpDAGQgkgg8Ag5FfP4i9StGhe0bucrOzai9FprufMYq9WvDDXai3KcrOzai9FdarU4X4l+ItS07XNN0qz1iHw7a3dvcyTXM8NrLHviKbATdbQC2SBiRck9GNenFKzdr29T2IJWbte1u5z1t8QfElz4WvruyYajc2OoNZLqVva7/MtV2+ZfRWq/upWj3HAU+RgbmygYmuVJpbaXt+hXLFSSeite1+va5veGPHrWugajrk2sQeJorGMypssxY3KMAR5c0QcAIzYEbeUMjewkcYCy46pWt87kuOqjblv53Rs+EoPFsqw69q+qW8trcQGeXTY7CNUiV08xFhuVlExZRgZl8xcFgQ52sE+XZL53FLl+FL53/Q8/h8c+KYdOt/HM93A2k3l6kX9k/Zox5VrJN5COt0D5zTDG4q2U3En7uEW+VX5Lapbl8sb8iWqW9+voeo618YPCnh68k03Ub7yLqAqJI/s12+0squPmjgdDlWB+Vj1wecis1CT1SM1CTV0tPkaniYpqukLq9hK6vbIL21kUuoYBN/zRttyrxkqQ65AYjAywPBiYvkc4tqVP3lZ9VvdbO6ujzMXB+zdSLcZ0/fjZ9VumtmmrrXua0+t+Xox1cLj/RftAXtkx7wvOOMnFW6tqXtv7nNb5XNHWtQ+sW+xzW+V7FPwtpklvpas80n2q9X7RLNu3ESTANlFkDxrtBVQNm07QSpqKEHGmryfNP3m/OXZO609LGWGpuNFNyfPNc0pXv70tdE7pW0W1tNjn/Ckd2mq3K291dXunwJ5Mr3cm/ddqcsIOBtRASGwMZ4y2FNc1BSVWSjOcqaVm5u/v9eXsl1/XQ5MMpqtNQnOdKK5W5u96ievL2S6/roa6a5r5kCNo+2MsAX+325wucFtu3JwOdvXtW3ta97ew0vv7SO3e1joVbE3s8Ppff2sNu9rfgeTeLPHesy6reQ6XqUOlJpkht7e0ksxcf2lcQ2/2udJZyCbZPL+RWUoWycHfg16qirK6vfz2PbjFWV1e/W9rdD0vVbhtf8AD0GvW5e2uIYEv4drEBW8sOyMoO11ZSyfMDwTjqwPnYmD5HOLalT96LT6rutndaHkYyD9m5xbU6V5xafVb3WzTV1r3PQdDvRf2kd5jaJoo5cem5dxH4Zr0MPLnip91F/ej1cLP2kFU/mjF/erlezvGEU+oSF2jLHy0ycBF4GFzgZPU47Zrt8jvIYPEMkz7FgH3DISsythQM5OF4P+ycN7U7WERDxO23d5BA2hs+YPultpP3f73AHU9eBRYDq1YMAw6EZ/OpGOoAKACgAoAKACgAoAKAKt39wf9dIv/RqUAWaAMbTIneaa7lUqZG2IGBUiNenBAI3dfwp+QHJeJrS5ttQtdZs42nNuzwTxIMu0ExALIM8mNwGI9OTwCR4OIjKNSNeCb5W4yS35ZPdej1Pm8VGUa0MRTTlyuUZRW7jJ7peT1KPiHwDZ+J9ZstXvxDcQWMM8RtJ7dJo5TNtIcmRtqmMrkAxMST1Wu9S5VZHpKXKml167GlrfhqW609LDQ7t9Ba3ZWha0hhMS7c4jeBkCtDk5MaNGGONxK5Vknrdq4k7O7V/U5jQvhklsb+fX7ttZvNYhFvcymCK0QwKMKghgJUP6ybixwuAMHNOW3KrWKc9uVWS26i+G/AWr6BPFFJrtzd6TaBlgsXtrZX2Y2ok91hpJkVCRgJGc7ShTYARyT6a9wck9o2fe/wChixfB1kmjtH1O4k8P2919si0poYvllDmRVa7z5rwLISREU+7gbt2XL5/LXa//AACufrb3rWv/AMA9s6VkYnK+LvtVxZHT7KNpJb4+QXAOyGNh+8lkYcKAuQoPLMQAD0rkxHM4ezpptz92/SKe7b9PvZwYrnlT9jSTcqnu36RT3k30027s0pdGik006UCREbf7OD3xs2A8Y571q6adP2PTl5fwsbOknS9h05OX8LFHwm92tgtrfxtFPZnyGJHySiPASWM/xIy454+bIwKzocygoVE1KPu+Tts15NGeGc1TUKsWpQ919nbaS7pr8SfQ9IuNJWZbm7lvvOlaRDLkeUp6Rrlm4HttX+6i96pU5U+ZSm53bav0Xbd/ovJFUaUqXMp1JT5pNq/2U+i1f6LskZCfDrQI5BOtriRWDg+dcfeByDjzcdecYx7Vh9ToJ8yhre/xS3+851gMMnzKGt7/ABT3/wDAjnPEPwzuNUvbm403VJ9KtNWVV1K2ighk+0bV8stFNJ81tI0fyM6q+eDjA216albdXtsewp2STV2tvI6bxDZy22lR6JpUTN56LaI2CUghC7WkkfoAsYwM8sxAAJ4rgxHNKHs4Jtz92/SKe7fy+9nmYrnlD2VNNyqe7fpFPeTfTTbuzoRbNp+niytQzFUjgTAJIAG0s2BgfKDk8DNelh4qC5Fskl9x6uGiqceSO0VFL5Kxp3dsYLBreBSxWPaAhwTxgkfqSMZboOTXWdxzunQXe8RRqyRupWUyW0cOARgYZTucgnjkHPJ4JpiND/hG/wB35fm/8sxHnZ6Sb843/hj8c9qLgdKi7FC9cAD8qkY+gAoAKACgAoAKACgAoAq3f3B/10i/9GpQBaoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAK9zG0iYTG4MjDJwPldWxkA4zj0NADd9x/cj/wC/jf8AxqgA33H9yP8A7+N/8aoAN9x/cj/7+N/8aoAN9x/cj/7+N/8AGqADfcf3I/8Av43/AMaoAN9x/cj/AO/jf/GqADfcf3I/+/jf/GqADfcf3I/+/jf/ABqgA33H9yP/AL+N/wDGqADfcf3I/wDv43/xqgA33H9yP/v43/xqgA33H9yP/v43/wAaoAN9x/cj/wC/jf8AxqgA33H9yP8A7+N/8aoAN9x/cj/7+N/8aoAN9x/cj/7+N/8AGqADfcf3I/8Av43/AMaoAN9x/cj/AO/jf/GqADfcf3I/+/jf/GqADfcf3I/+/jf/ABqgA33H9yP/AL+N/wDGqADfcf3I/wDv43/xqgA33H9yP/v43/xqgA33H9yP/v43/wAaoAN9x/cj/wC/jf8AxqgA33H9yP8A7+N/8aoAN9x/cj/7+N/8aoAN9x/cj/7+N/8AGqALVABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAEFzbrdRtC5cK4wTHI8Tj/dkjZHU+6sD2zQB5r5iaELq7D3c0kN8ttbrJdX9wi+bHCBugEshmCl3fbsZ2OFUg7SoBoL4k1IQTbYXleJods40++hTZKxWRvscp+0StBjcywynerKcoQwoAiGsXep/2fLa3drIr3rRyNAk22RfIkcLJE06vA4AIaCRpSr+XISNpjIB0PiOG8mSEWqyywiX/AEmK3mFvO8extvlymSHbtk2s4E0RZQRuIyjAHHvfTmwnGn3F1bOk9r/o9/HO1zbiSdUYea04kmilYblbzZU2h4lfBAjANLU9Z1AQ6i+YBDp7LFtVZ0kkZo4ZNwljuUMQBkI2qGZhxvXnIBJL4h1GJprgC2+y2t9HaGPZIZXSRoU3iXzQiMplztMThwvVM8AC3Wv6kifboRbfZDepaCNkkM2z7Stu8xkEoTJYNti8rgFWMjEFCAd9QAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQBhT+H7e4inhYyD7VMJywYB45VEYR4iF+UoY1Zdwb5s5yp20ANGhuYnR729eV2RhPviV02HKhY44Uttpyd4aBvMBxJuCoFAIV8MRKFbzpzcC4Fy1wfJ815BGYsMvkiEJ5R8vakS4HzAh8sQDQ1LSU1Exyb5LeeAkxTQlRIm4YcYdJI3VxwySRuvAYAMqsACg3hqKWKVJpp5Z7jy91y3lCYeS2+IKEhWBRG3IUQ7WJJcOSTQA+Tw3BLBdW8jysL9leVsoG3KkceVxGFGRGCRtIyTgAYAAFk8OW0kU0JaQLcXKXTYK5EiNG4C/JgITEuQQWwWwwyCADlrnQbq7u/IWK5gtxepdEGe2ay+SVZTIgXF75kuOYWAgSV2bJwrkA9JoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgCOSVIFLyMEUdWYgAZOBknA6nH1oAiF5BhSJI8SHCfOvzkHBC8/MQeMDPPFAB9sgAY+ZHiI4f51+Qk4Abn5TnjnHPFACi6hLKgdC0g3Iu4ZZeTlRnJGATkccGgBn2632eZ5sewHbu3rt3YztznGcc464oAkN1CGKF0DINzLuGVXruIzkDBByeOaAGi8gwpEkeJDhDvXDEHBC8/Mc8YGeeKAA3kA3ZkjHl8P8AOvyc4+bn5eeOcc8UAKLqEsqCRN0g3INy5YeqjOSODyOOKAGfbrfZ5nmx7Adpbeu3d1xnOM45x1oAkN1CGKb0DKNxXcMheu4jOQMHOTxQAz7bBhWEkeHOFO9cMc4wpzyc8YHegBTdwDd+8QeX9/51+TnHzc/LzxzjmgBRdQkqokTMgyg3Llh6qM8j3FADft1uFL+bHsB2lt64B9Cc4B9utAD/ALVCGKb03Abiu4ZC9dxGcgY5z0oAZ9tt8Kwlj2ucKd64Y+gOeT7CgBTdwDcDIg8v7/zL8v8Avc/L+OKAFF3CSqiRMyDKDcuWHqvPI+maAG/brcKX82Pap2lt64B9Cc4B9utAD/tUO7ZvTdjdt3DO3ruxnOMc56UAM+22+0P5se1jhTvXBPoDnBPsOaAHG7hBYGRAY/vjcvy/73Py/jigAF3CSoEiZk5Qbl+b/d5+b8M0AN+224Uv5se1ThjvXAPoTnAPseaAH/aod2zem7G7buGdvXdjOcY5z0oAZ9tt9ofzY9rHaDvXBPoDnBPsOaAHG7hBZTIgMYy43LlR6tz8o+uKAAXcB2gSJ+8+58y/N/u8/N+GaALFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAFa6ZkT5DtJZFyMZAZ1U4yCOhPUGgBPs7/APPaT8ov/jdAB9nf/ntJ+UX/AMboAPs7/wDPaT8ov/jdAB9nf/ntJ+UX/wAboAPs7/8APaT8ov8A43QAfZ3/AOe0n5Rf/G6AD7O//PaT8ov/AI3QAfZ3/wCe0n5Rf/G6AD7O/wDz2k/KL/43QAfZ3/57SflF/wDG6AD7O/8Az2k/KL/43QAfZ3/57SflF/8AG6AD7O//AD2k/KL/AON0AH2d/wDntJ+UX/xugA+zv/z2k/KL/wCN0AH2d/8AntJ+UX/xugA+zv8A89pPyi/+N0AH2d/+e0n5Rf8AxugA+zv/AM9pPyi/+N0AH2d/+e0n5Rf/ABugA+zv/wA9pPyi/wDjdAB9nf8A57SflF/8boAPs7/89pPyi/8AjdAB9nf/AJ7SflF/8boAPs7/APPaT8ov/jdAB9nf/ntJ+UX/AMboAPs7/wDPaT8ov/jdAB9nf/ntJ+UX/wAboAtUAVbv7g/66Rf+jUoAtUAeIf8AC+9B/wCeF/8A9+rf/wCSa9j+zqv80Pvl/wDInhf2pR/lqfdH/wCSD/hfeg/88L//AL9W/wD8k0f2dV/mh98v/kQ/tSj/AC1Puj/8kH/C+9B/54X/AP36t/8A5Jo/s6r/ADQ++X/yIf2pR/lqfdH/AOSD/hfeg/8APC//AO/Vv/8AJNH9nVf5offL/wCRD+1KP8tT7o//ACQf8L70H/nhf/8Afq3/APkmj+zqv80Pvl/8iH9qUf5an3R/+SL2mfGzRdVu4LGGC9WS6mjhQvHAFDSuEUsRcMQoLDJCk46AniongKsIubcLRTbs3eyV/wCUuGZUako04xneTUVdRtdu2vvHsNeUe0FABQAUAFABQAUAc/4a1WXWbSS4nCKyXuo2wCAgbLTULq0jJ3Mx3NHCrOc4LliqqpCgA6CgAoAKACgAoAKACgAoAKACgAoAKACgAoAq3f3B/wBdIv8A0alAFqgD8vBLMkX2jzWJEhURlY9pHmFQowgfOOh3k55ORkV9hzTUfa87+JrlajZ+9y20ipXttrv32PheWDn7H2aS5E+ZOfMnyKV3eTja+/u7bW3JZ7gicxPKbcYHl/Ku2QnrlnUgkHjYrK2Oec5Fzm1PklN09uXRWl3u5Jq99OVNP9M4U17PnhTVTfn1leHa0YyTtbXmaavp01szPI0i26NsJUs7gDIAwBtDbgCSerBgACMZORtJyclSi7OzbaSvZaaJ3Wr7p6feYwUYxlVkrpNRjFt2u7v3mrN2XZq7d9tG2UywhIQ+55H2hyq5C4LHIGFLYBCnaByMqcHMy5oKMFK7lKyk0rpWu9rJvR20S2unbWoqE3Ko42jGN3FN2buktXeSWqvq3vZq+ixStBI0Mz7lVA4dtqnGSCG2hV4PIIA4PPTJcZOEnCcrpLmUnZabO9klp3stPvFKKnGNSnGzcuVxjdq9rpq7cte13rtvY6rwRe282v6ascsbt9vtDhXVjgTx54BJrKrVpzpVIwnFvknopJv4X0TNaNGpTq0pThOK9pDVxaXxLq0fXsfjG9JTUWey+wSvHiyCuL5LaWf7NFeNKbjYUZyHMP2RQFJUXBdfm+MPvjZ8RX+taTHPqUL2K2Vmpk+zvHNJPcKqgkC4E8MdtI5yiJ9muhkKxc7yiAF/XJdSjgF5ZXVnp8EUTST/AGyzluSABuJDRX9mECKDuBWTJ6EYwQCnpOvyWGlJqPim4srIysSsjD7FEEckwq63FzPtmZMMyec2GJQZ2kkA0LbWdP8AFMEsei6lDIy4Vp7Ca1uHhJ5Bwy3EQJAOBJGwIzgcZABzPha11Oe+vPtWrX1zFp94YFheLTFSVPs8Mn70w6fFLndKeYpIuAo9dwBQ0jW7jU9Ue1udUfT9ShuH/wCJPJBbLFJarI6o8XmwJeXIlhTzPtFvdmJJfvRhUaEgHS+BP+QdN/2Fdb/9PN/QB2dABQAUAFABQAUAFABQAUAFABQAUAFABQBVu/uD/rpF/wCjUoAtUAfmRaafHb/OUj83c7bwo3fMxI+bAPQ4NfcU6MafvOMee8nzJK+rb3tfZn55Vryqe6pS5LRXK27aJLa9t1cdcJPJuj2xPG/HzFgQDwcrtcP69U9P9qiam7xtBxfdtWXmrSUu+8e3mKDpxtO84zjr7qTu/J80XHttLv5DTayQiNoSGeJdhD5AdeOpAJU5AIO1u4xzkL2cocrptOUVy+9opLTqk7O6vez7W1uUqkZc8aiajKXMuXVxevRtXVnZq66O+lmrwzSqrnYssbblALFcYwVLYBOQT8wUYyPlOOW4zkk3yqcXdJXa2s03ZPVN62VuztqoypwbiuZwlGzbsnvdNK7Ss0tOZ311V9HwQuJGnm2h2AUKpLBVBJ+8VUkknJ+UY4HuahGXM6k7JtJJJ3SS13aV235Lt5kznHlVKnflTbbaSbb02TaSS21fV+R2Pgz/AJD2m/8AX/af+lEdKv8Awqn+CX/pLHh/41L/AK+Q/wDSkfWMfgy8DJYNHY/Yo3T/AE4Fvt720U/2mKyaI2+wIrgIZftbAoCwt1dvl+GP0Qta5p/iK+1MSJb6dc6XbbHt4Jb+5t2ecc+dcqmm3Kv5Zx5EIfYjAzOZJPK8gA6PxFplzrmmNZL5cUk5hEyl2MfliWNrhFcRhm3Rh0UmNQ2RuCgnAB0YGOBQAtAHPaJpM2mz38shQi9uzcRhSSQnkQRYfKjDbomOFLDaRznIABzmq6LrXiALY6hHpy28VxFOl9FJMbhTFIJFMVnJbskMpAMXm/b5NoLSbGDeTQBo+BP+QdN/2Fdb/wDTzf0AdnQAUAFABQAUAFABQAUAFABQAUAFABQAUAVbv7g/66Rf+jUoAtUAeIf8KE0H/nvf/wDf23/+Rq9j+0av8sPul/8AJHhf2XR/mqffH/5EP+FCaD/z3v8A/v7b/wDyNR/aNX+WH3S/+SD+y6P81T74/wDyIf8AChNB/wCe9/8A9/bf/wCRqP7Rq/yw+6X/AMkH9l0f5qn3x/8AkQ/4UJoP/Pe//wC/tv8A/I1H9o1f5YfdL/5IP7Lo/wA1T74//Ih/woTQf+e9/wD9/bf/AORqP7Rq/wAsPul/8kH9l0f5qn3x/wDkS9pnwT0XSruC+hnvWktZo5kDyQFS0Th1DAW6kqSoyAwOOhB5qJ4+rOLg1C0k07J3s1b+YuGW0aco1IyneLUldxtdO+vunsNeUe0FABQAUAFABQAUAZmk6VFo0LW8Bdke4urklyCd93czXcgG1VG1ZJmVBjIQKGZmBYgGnQAUAFABQAUAFABQAUAFABQAUAFABQAUAVbv7g/66Rf+jUoAtUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAFW7+4P8ArpF/6NSgC1QAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAVbv7g/66Rf+jUoAtUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAFW7+4P8ArpF/6NSgC1QAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAVbv7g/66Rf+jUoAtUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAFW7+4P8ArpF/6NSgC1QAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQB//9k=" width="250px" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># replace the &quot;I&quot; by a blank
   x         &lt;- myXl$Wellname
   pattern   &lt;-  &quot;(PSCO-)(?=0)&quot;
@@ -383,61 +383,62 @@ myXl$Wellname[indices] &lt;- gsub(pattern, replaceBy, x[indices], perl = TRUE)</
   
   myXl$Wellname[indices]  # before
   myXl$Wellname[indices]  &lt;- gsub(pattern, replaceBy, x[indices], perl = TRUE)
-  myXl$Wellname[indices]  # after</code></pre>
-<pre><code>[1] &quot;PSCO-027-TS&quot;
-[1] &quot;PSCO-S027-TS&quot;</code></pre>
+  myXl$Wellname[indices]  # after
+#:&gt; [1] &quot;PSCO-027-TS&quot;
+#:&gt; [1] &quot;PSCO-S027-TS&quot;</code></pre>
 <p>Well names are done! Let’s take a look:</p>
 <pre class="r"><code># print the well names
-myXl$Wellname</code></pre>
-<pre><code>  [1] &quot;PSCO-M005-TS&quot; &quot;PSCO-M007-TS&quot; &quot;PSCO-M004-LS&quot; &quot;PSCO-M008-TS&quot;
-  [5] &quot;PSCO-M010-SS&quot; &quot;PSCO-M006-TS&quot; &quot;PSCO-M016-LS&quot; &quot;PSCO-M018-LS&quot;
-  [9] &quot;PSCO-M021-LS&quot; &quot;PSCO-M017-LS&quot; &quot;PSCO-M030-SS&quot; &quot;PSCO-M027-SS&quot;
- [13] &quot;PSCO-M016-SS&quot; &quot;PSCO-M020-LS&quot; &quot;PSCO-M028-TS&quot; &quot;PSCO-M015-LS&quot;
- [17] &quot;PSCO-M018-SS&quot; &quot;PSCO-M015-SS&quot; &quot;PSCO-M002-LS&quot; &quot;PSCO-M012-TS&quot;
- [21] &quot;PSCO-Q007-LS&quot; &quot;PSCO-Q001-SS&quot; &quot;PSCO-Q005-SS&quot; &quot;PSCO-Q011-SS&quot;
- [25] &quot;PSCO-Q002-SS&quot; &quot;PSCO-Q002-LS&quot; &quot;PSCO-Q003-LS&quot; &quot;PSCO-Q004-SS&quot;
- [29] &quot;PSCO-Q009-SS&quot; &quot;PSCO-Q019-LS&quot; &quot;PSCO-Q032-SS&quot; &quot;PSCO-Q028-LS&quot;
- [33] &quot;PSCO-Q028-SS&quot; &quot;PSCO-Q029-LS&quot; &quot;PSCO-Q032-LS&quot; &quot;PSCO-Q024-TS&quot;
- [37] &quot;PSCO-Q018-LS&quot; &quot;PSCO-Q017-LS&quot; &quot;PSCO-Q013-SS&quot; &quot;PSCO-Q014-LS&quot;
- [41] &quot;PSCO-Q017-SS&quot; &quot;PSCO-Q014-SS&quot; &quot;PSCO-Q018-SS&quot; &quot;PSCO-Q012-TS&quot;
- [45] &quot;PSCO-R009-SS&quot; &quot;PSCO-R015-LS&quot; &quot;PSCO-R019-SS&quot; &quot;PSCO-R019-LS&quot;
- [49] &quot;PSCO-R020-SS&quot; &quot;PSCO-R013-TS&quot; &quot;PSCO-R012-LS&quot; &quot;PSCO-R012-SS&quot;
- [53] &quot;PSCO-R018-SS&quot; &quot;PSCO-R018-LS&quot; &quot;PSCO-R015-SS&quot; &quot;PSCO-R020-SS&quot;
- [57] &quot;PSCO-R004-LS&quot; &quot;PSCO-R001-SS&quot; &quot;PSCO-R003-TS&quot; &quot;PSCO-R006-SS&quot;
- [61] &quot;PSCO-R007-LS&quot; &quot;PSCO-R001-LS&quot; &quot;PSCO-R007-SS&quot; &quot;PSCO-R002-SS&quot;
- [65] &quot;PSCO-R029-TS&quot; &quot;PSCO-R027-LS&quot; &quot;PSCO-R025-SS&quot; &quot;PSCO-R023-SS&quot;
- [69] &quot;PSCO-R022-TS&quot; &quot;PSCO-R021-SS&quot; &quot;PSCO-R023-LS&quot; &quot;PSCO-R027-SS&quot;
- [73] &quot;PSCO-S008-LS&quot; &quot;PSCO-S004-LS&quot; &quot;PSCO-S027-TS&quot; &quot;PSCO-S019-SS&quot;
- [77] &quot;PSCO-S007-LS&quot; &quot;PSCO-S011-SS&quot; &quot;PSCO-S016-LS&quot; &quot;PSCO-S002-TS&quot;
- [81] &quot;PSCO-S002-TS&quot; &quot;PSCO-S019-LS&quot; &quot;PSCO-S030-SS&quot; &quot;PSCO-S018-LS&quot;
- [85] &quot;PSCO-S026-SS&quot; &quot;PSCO-S029-TS&quot; &quot;PSCO-S018-SS&quot; &quot;PSCO-S013-SS&quot;
- [89] &quot;PSCO-S015-LS&quot; &quot;PSCO-S031-TS&quot; &quot;PSCO-S032-SS&quot; &quot;PSCO-S030-LS&quot;
- [93] &quot;PSCO-S032-LS&quot; &quot;PSCO-S006-SS&quot; &quot;PSCO-S021-TS&quot; &quot;PSCO-S016-SS&quot;
- [97] &quot;PSCO-S015-SS&quot; &quot;PSCO-S012-LS&quot; &quot;PSCO-M001-TS&quot; &quot;PSCO-M026-TS&quot;</code></pre>
+myXl$Wellname
+#:&gt;   [1] &quot;PSCO-M005-TS&quot; &quot;PSCO-M007-TS&quot; &quot;PSCO-M004-LS&quot; &quot;PSCO-M008-TS&quot;
+#:&gt;   [5] &quot;PSCO-M010-SS&quot; &quot;PSCO-M006-TS&quot; &quot;PSCO-M016-LS&quot; &quot;PSCO-M018-LS&quot;
+#:&gt;   [9] &quot;PSCO-M021-LS&quot; &quot;PSCO-M017-LS&quot; &quot;PSCO-M030-SS&quot; &quot;PSCO-M027-SS&quot;
+#:&gt;  [13] &quot;PSCO-M016-SS&quot; &quot;PSCO-M020-LS&quot; &quot;PSCO-M028-TS&quot; &quot;PSCO-M015-LS&quot;
+#:&gt;  [17] &quot;PSCO-M018-SS&quot; &quot;PSCO-M015-SS&quot; &quot;PSCO-M002-LS&quot; &quot;PSCO-M012-TS&quot;
+#:&gt;  [21] &quot;PSCO-Q007-LS&quot; &quot;PSCO-Q001-SS&quot; &quot;PSCO-Q005-SS&quot; &quot;PSCO-Q011-SS&quot;
+#:&gt;  [25] &quot;PSCO-Q002-SS&quot; &quot;PSCO-Q002-LS&quot; &quot;PSCO-Q003-LS&quot; &quot;PSCO-Q004-SS&quot;
+#:&gt;  [29] &quot;PSCO-Q009-SS&quot; &quot;PSCO-Q019-LS&quot; &quot;PSCO-Q032-SS&quot; &quot;PSCO-Q028-LS&quot;
+#:&gt;  [33] &quot;PSCO-Q028-SS&quot; &quot;PSCO-Q029-LS&quot; &quot;PSCO-Q032-LS&quot; &quot;PSCO-Q024-TS&quot;
+#:&gt;  [37] &quot;PSCO-Q018-LS&quot; &quot;PSCO-Q017-LS&quot; &quot;PSCO-Q013-SS&quot; &quot;PSCO-Q014-LS&quot;
+#:&gt;  [41] &quot;PSCO-Q017-SS&quot; &quot;PSCO-Q014-SS&quot; &quot;PSCO-Q018-SS&quot; &quot;PSCO-Q012-TS&quot;
+#:&gt;  [45] &quot;PSCO-R009-SS&quot; &quot;PSCO-R015-LS&quot; &quot;PSCO-R019-SS&quot; &quot;PSCO-R019-LS&quot;
+#:&gt;  [49] &quot;PSCO-R020-SS&quot; &quot;PSCO-R013-TS&quot; &quot;PSCO-R012-LS&quot; &quot;PSCO-R012-SS&quot;
+#:&gt;  [53] &quot;PSCO-R018-SS&quot; &quot;PSCO-R018-LS&quot; &quot;PSCO-R015-SS&quot; &quot;PSCO-R020-SS&quot;
+#:&gt;  [57] &quot;PSCO-R004-LS&quot; &quot;PSCO-R001-SS&quot; &quot;PSCO-R003-TS&quot; &quot;PSCO-R006-SS&quot;
+#:&gt;  [61] &quot;PSCO-R007-LS&quot; &quot;PSCO-R001-LS&quot; &quot;PSCO-R007-SS&quot; &quot;PSCO-R002-SS&quot;
+#:&gt;  [65] &quot;PSCO-R029-TS&quot; &quot;PSCO-R027-LS&quot; &quot;PSCO-R025-SS&quot; &quot;PSCO-R023-SS&quot;
+#:&gt;  [69] &quot;PSCO-R022-TS&quot; &quot;PSCO-R021-SS&quot; &quot;PSCO-R023-LS&quot; &quot;PSCO-R027-SS&quot;
+#:&gt;  [73] &quot;PSCO-S008-LS&quot; &quot;PSCO-S004-LS&quot; &quot;PSCO-S027-TS&quot; &quot;PSCO-S019-SS&quot;
+#:&gt;  [77] &quot;PSCO-S007-LS&quot; &quot;PSCO-S011-SS&quot; &quot;PSCO-S016-LS&quot; &quot;PSCO-S002-TS&quot;
+#:&gt;  [81] &quot;PSCO-S002-TS&quot; &quot;PSCO-S019-LS&quot; &quot;PSCO-S030-SS&quot; &quot;PSCO-S018-LS&quot;
+#:&gt;  [85] &quot;PSCO-S026-SS&quot; &quot;PSCO-S029-TS&quot; &quot;PSCO-S018-SS&quot; &quot;PSCO-S013-SS&quot;
+#:&gt;  [89] &quot;PSCO-S015-LS&quot; &quot;PSCO-S031-TS&quot; &quot;PSCO-S032-SS&quot; &quot;PSCO-S030-LS&quot;
+#:&gt;  [93] &quot;PSCO-S032-LS&quot; &quot;PSCO-S006-SS&quot; &quot;PSCO-S021-TS&quot; &quot;PSCO-S016-SS&quot;
+#:&gt;  [97] &quot;PSCO-S015-SS&quot; &quot;PSCO-S012-LS&quot; &quot;PSCO-M001-TS&quot; &quot;PSCO-M026-TS&quot;</code></pre>
 </div>
 </div>
 </div>
 <div id="check-if-company-is-correct" class="section level2">
 <h2>Check if <code>Company</code> is correct</h2>
 <p>The next variable or column is the “Company”. It should be easy.</p>
-<pre class="r"><code>x        &lt;- myXl$Company
+<pre class="r"><code>
+x        &lt;- myXl$Company
 patttern &lt;- &quot;Oil Gains Co.&quot;
 
 grep(pattern, x, value = TRUE, perl = TRUE)
-# We don't get any return. All the company names are the same. Cool!</code></pre>
-<pre><code>character(0)</code></pre>
+# We don't get any return. All the company names are the same. Cool!
+#:&gt; character(0)</code></pre>
 <p>We don’t get any return. All the company names are the same. Cool!</p>
 </div>
 <div id="detect-incorrect-names-and-synonyms-in-analyst" class="section level2">
 <h2>Detect incorrect names and synonyms in <code>Analyst</code></h2>
 <p>The could use this variable to store the name of the analyst or the operator who supplied the data.</p>
 <pre class="r"><code># summary(myXl$Analyst)
-unique(myXl$Analyst)             # show only non-repeating names</code></pre>
-<pre><code> [1] &quot;Aida&quot;     &quot;Ibironke&quot; &quot;Ibironk&quot;  &quot;Vivek&quot;    &quot;Americo&quot;  &quot;Norman&quot;  
- [7] &quot;Rod&quot;      &quot;Rodrigo&quot;  &quot;Sam&quot;      &quot;Thomas&quot;   &quot;Tom&quot;      &quot;Kai&quot;     
-[13] &quot;Andrew&quot;   &quot;Andy&quot;     &quot;Camden&quot;   NA        </code></pre>
-<pre class="r"><code>length(unique(myXl$Analyst))     # how many</code></pre>
-<pre><code>[1] 16</code></pre>
+unique(myXl$Analyst)             # show only non-repeating names
+#:&gt;  [1] &quot;Aida&quot;     &quot;Ibironke&quot; &quot;Ibironk&quot;  &quot;Vivek&quot;    &quot;Americo&quot;  &quot;Norman&quot;  
+#:&gt;  [7] &quot;Rod&quot;      &quot;Rodrigo&quot;  &quot;Sam&quot;      &quot;Thomas&quot;   &quot;Tom&quot;      &quot;Kai&quot;     
+#:&gt; [13] &quot;Andrew&quot;   &quot;Andy&quot;     &quot;Camden&quot;   NA
+length(unique(myXl$Analyst))     # how many
+#:&gt; [1] 16</code></pre>
 <pre class="r"><code>operators &lt;- c(&quot;Aida&quot;, &quot;Americo&quot;, &quot;Andrew&quot;, &quot;Camden&quot;, &quot;Ibironke&quot;, &quot;Kai&quot;, &quot;Norman&quot;, 
                &quot;Rodrigo&quot;, &quot;Sam&quot;, &quot;Tom&quot;, &quot;Vivek&quot;)
 
@@ -445,16 +446,16 @@ unique(myXl$Analyst)             # show only non-repeating names</code></pre>
   x       &lt;- myXl$Analyst
   indices &lt;- which(!x %in% operators)
   result  &lt;- myXl$Analyst[indices]
-  data.frame(indices, result)</code></pre>
-<pre><code>  indices  result
-1       9 Ibironk
-2      31     Rod
-3      32     Rod
-4      33     Rod
-5      37  Thomas
-6      78    Andy
-7      83    Andy
-8      98    &lt;NA&gt;</code></pre>
+  data.frame(indices, result)
+#:&gt;   indices  result
+#:&gt; 1       9 Ibironk
+#:&gt; 2      31     Rod
+#:&gt; 3      32     Rod
+#:&gt; 4      33     Rod
+#:&gt; 5      37  Thomas
+#:&gt; 6      78    Andy
+#:&gt; 7      83    Andy
+#:&gt; 8      98    &lt;NA&gt;</code></pre>
 <p>We can correct manually. In this example we will make use of the operator <code>%in%</code>. It is pretty handy for checking if elements belong to a particular group.</p>
 <pre class="r"><code># assigning via indices
 myXl$Analyst[9]              &lt;- &quot;Ibironke&quot; 
@@ -463,142 +464,147 @@ myXl$Analyst[c(78,83)]       &lt;- &quot;Andrew&quot;
 myXl$Analyst[c(37)]          &lt;- &quot;Tom&quot;
 
 # verify if we have incorrect assignements
-  myXl$Analyst[indices]</code></pre>
-<pre><code>[1] &quot;Ibironke&quot; &quot;Rodrigo&quot;  &quot;Rodrigo&quot;  &quot;Rodrigo&quot;  &quot;Tom&quot;      &quot;Andrew&quot;  
-[7] &quot;Andrew&quot;   NA        </code></pre>
-<pre class="r"><code>  indices &lt;- which(!myXl$Analyst %in% operators)
-  myXl$Analyst[indices]</code></pre>
-<pre><code>[1] NA</code></pre>
+  myXl$Analyst[indices]
+#:&gt; [1] &quot;Ibironke&quot; &quot;Rodrigo&quot;  &quot;Rodrigo&quot;  &quot;Rodrigo&quot;  &quot;Tom&quot;      &quot;Andrew&quot;  
+#:&gt; [7] &quot;Andrew&quot;   NA
+  indices &lt;- which(!myXl$Analyst %in% operators)
+  myXl$Analyst[indices]
+#:&gt; [1] NA</code></pre>
 <p>There is only one observation left, the one with NA. We will have to cross-reference it. Let’s find out who are the platform operators.</p>
 <div id="who-is-the-platform-operator" class="section level3">
 <h3>Who is the platform operator?</h3>
 <p>In our particular case, who is the platform operator in “S”?</p>
 <pre class="r"><code># Who is the platform operator?
-  table(myXl$Analyst, myXl$Platform)</code></pre>
-<pre><code>          
-            M  Q  R  S
-  Aida      6  0  1  0
-  Americo   0  6  0  0
-  Andrew    0  0  0 11
-  Camden    0  0  0 14
-  Ibironke  9  2  0  0
-  Kai       0  0  8  0
-  Norman    0  1  8  0
-  Rodrigo   0  5  0  0
-  Sam       0  1  0  0
-  Tom       0  8  0  0
-  Vivek     5  1 11  0</code></pre>
+  table(myXl$Analyst, myXl$Platform)
+#:&gt;           
+#:&gt;             M  Q  R  S
+#:&gt;   Aida      6  0  1  0
+#:&gt;   Americo   0  6  0  0
+#:&gt;   Andrew    0  0  0 11
+#:&gt;   Camden    0  0  0 14
+#:&gt;   Ibironke  9  2  0  0
+#:&gt;   Kai       0  0  8  0
+#:&gt;   Norman    0  1  8  0
+#:&gt;   Rodrigo   0  5  0  0
+#:&gt;   Sam       0  1  0  0
+#:&gt;   Tom       0  8  0  0
+#:&gt;   Vivek     5  1 11  0</code></pre>
 <p>For platform S, it could be Andrew or Camden.</p>
 <pre class="r"><code># which observations are and are not &quot;Andrew&quot; and &quot;Camden&quot;
-  myXl$Analyst %in% c(&quot;Andrew&quot;, &quot;Camden&quot;)</code></pre>
-<pre><code>  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [12] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [23] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [34] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [45] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [56] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
- [67] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
- [78]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
- [89]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
-[100] FALSE</code></pre>
-<pre class="r"><code># which indices contain &quot;Andrew&quot; and &quot;Camden&quot;
+  myXl$Analyst %in% c(&quot;Andrew&quot;, &quot;Camden&quot;)
+#:&gt;   [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [12] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [23] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [34] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [45] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [56] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#:&gt;  [67] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+#:&gt;  [78]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE
+#:&gt;  [89]  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+#:&gt; [100] FALSE
+
+# which indices contain &quot;Andrew&quot; and &quot;Camden&quot;
   mask &lt;- which(myXl$Analyst %in% c(&quot;Andrew&quot;, &quot;Camden&quot;))
-  mask</code></pre>
-<pre><code> [1] 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
-[24] 96 97</code></pre>
-<pre class="r"><code># show the well name, analyst and platform  
-  myXl[mask, c(&quot;Wellname&quot;, &quot;Analyst&quot;, &quot;Platform&quot;)]  </code></pre>
-<pre><code>       Wellname Analyst Platform
-73 PSCO-S008-LS  Andrew        S
-74 PSCO-S004-LS  Andrew        S
-75 PSCO-S027-TS  Andrew        S
-76 PSCO-S019-SS  Andrew        S
-77 PSCO-S007-LS  Andrew        S
-78 PSCO-S011-SS  Andrew        S
-79 PSCO-S016-LS  Andrew        S
-80 PSCO-S002-TS  Andrew        S
-81 PSCO-S002-TS  Andrew        S
-82 PSCO-S019-LS  Andrew        S
-83 PSCO-S030-SS  Andrew        S
-84 PSCO-S018-LS  Camden        S
-85 PSCO-S026-SS  Camden        S
-86 PSCO-S029-TS  Camden        S
-87 PSCO-S018-SS  Camden        S
-88 PSCO-S013-SS  Camden        S
-89 PSCO-S015-LS  Camden        S
-90 PSCO-S031-TS  Camden        S
-91 PSCO-S032-SS  Camden        S
-92 PSCO-S030-LS  Camden        S
-93 PSCO-S032-LS  Camden        S
-94 PSCO-S006-SS  Camden        S
-95 PSCO-S021-TS  Camden        S
-96 PSCO-S016-SS  Camden        S
-97 PSCO-S015-SS  Camden        S</code></pre>
+  mask
+#:&gt;  [1] 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+#:&gt; [24] 96 97
+  
+# show the well name, analyst and platform  
+  myXl[mask, c(&quot;Wellname&quot;, &quot;Analyst&quot;, &quot;Platform&quot;)]  
+#:&gt;        Wellname Analyst Platform
+#:&gt; 73 PSCO-S008-LS  Andrew        S
+#:&gt; 74 PSCO-S004-LS  Andrew        S
+#:&gt; 75 PSCO-S027-TS  Andrew        S
+#:&gt; 76 PSCO-S019-SS  Andrew        S
+#:&gt; 77 PSCO-S007-LS  Andrew        S
+#:&gt; 78 PSCO-S011-SS  Andrew        S
+#:&gt; 79 PSCO-S016-LS  Andrew        S
+#:&gt; 80 PSCO-S002-TS  Andrew        S
+#:&gt; 81 PSCO-S002-TS  Andrew        S
+#:&gt; 82 PSCO-S019-LS  Andrew        S
+#:&gt; 83 PSCO-S030-SS  Andrew        S
+#:&gt; 84 PSCO-S018-LS  Camden        S
+#:&gt; 85 PSCO-S026-SS  Camden        S
+#:&gt; 86 PSCO-S029-TS  Camden        S
+#:&gt; 87 PSCO-S018-SS  Camden        S
+#:&gt; 88 PSCO-S013-SS  Camden        S
+#:&gt; 89 PSCO-S015-LS  Camden        S
+#:&gt; 90 PSCO-S031-TS  Camden        S
+#:&gt; 91 PSCO-S032-SS  Camden        S
+#:&gt; 92 PSCO-S030-LS  Camden        S
+#:&gt; 93 PSCO-S032-LS  Camden        S
+#:&gt; 94 PSCO-S006-SS  Camden        S
+#:&gt; 95 PSCO-S021-TS  Camden        S
+#:&gt; 96 PSCO-S016-SS  Camden        S
+#:&gt; 97 PSCO-S015-SS  Camden        S</code></pre>
 <p>There is not a real pattern here. We will assign the well to Andrew, make a note. Then we make a call to the field to confirm.</p>
 <p>In this example we use the function <code>which</code>, another powerful feature of R. It returns the index numbers of those observations that match or do not match a logical condition. Then with the index numbers you extract the observations from the vector, dataframe or matrix.</p>
 <pre class="r"><code>myXl$Analyst[c(98)] = &quot;Andrew&quot;
 
 # verify if we have incorrect assignements
   tocorrectIndices &lt;- which(!myXl$Analyst %in% operators)
-  myXl[tocorrectIndices, ]</code></pre>
-<pre><code> [1] Wellname          Company           Analyst          
- [4] Field             Location          Platform         
- [7] Fluid             WellType          AL_Method        
-[10] Completion        SandControl       WT_COUNT         
-[13] PVT_GOR           PVT_API           PVT_SG_gas       
-[16] PVT_WaterSalinity PVT_H2S           PVT_CO2          
-[19] PVT_PB_CORR       PVT_VISC_CORR     PVT_BPTEMP       
-[22] PVT_BPPRES        VLP_CORR          IPR_CORR         
-[25] IPR_RESPRES       IPR_RESTEMP       IPR_TOTGOR       
-[28] IPR_WC            IPR_VOGELRT       IPR_VOGELPRES    
-[31] IPR_PI            GEO_THMD          GEO_THTEMP       
-[34] GL_method         GL_ArrayMandrels  GL_Vdepth        
-[37] GL_GSG            GL_CO2            WT_DATE          
-[40] WT_THT            WT_LIQRT          WT_WC            
-[43] WT_THP            WT_GOR            WT_GLIR          
-[46] WT_DEPTH          WT_Enable         WT_GDEPTH        
-[49] WT_GPRES          WT_RESPRES        ProsperFilename  
-&lt;0 rows&gt; (or 0-length row.names)</code></pre>
-<pre class="r"><code>  # Analyst is complete  </code></pre>
+  myXl[tocorrectIndices, ]
+#:&gt;  [1] Wellname          Company           Analyst          
+#:&gt;  [4] Field             Location          Platform         
+#:&gt;  [7] Fluid             WellType          AL_Method        
+#:&gt; [10] Completion        SandControl       WT_COUNT         
+#:&gt; [13] PVT_GOR           PVT_API           PVT_SG_gas       
+#:&gt; [16] PVT_WaterSalinity PVT_H2S           PVT_CO2          
+#:&gt; [19] PVT_PB_CORR       PVT_VISC_CORR     PVT_BPTEMP       
+#:&gt; [22] PVT_BPPRES        VLP_CORR          IPR_CORR         
+#:&gt; [25] IPR_RESPRES       IPR_RESTEMP       IPR_TOTGOR       
+#:&gt; [28] IPR_WC            IPR_VOGELRT       IPR_VOGELPRES    
+#:&gt; [31] IPR_PI            GEO_THMD          GEO_THTEMP       
+#:&gt; [34] GL_method         GL_ArrayMandrels  GL_Vdepth        
+#:&gt; [37] GL_GSG            GL_CO2            WT_DATE          
+#:&gt; [40] WT_THT            WT_LIQRT          WT_WC            
+#:&gt; [43] WT_THP            WT_GOR            WT_GLIR          
+#:&gt; [46] WT_DEPTH          WT_Enable         WT_GDEPTH        
+#:&gt; [49] WT_GPRES          WT_RESPRES        ProsperFilename  
+#:&gt; &lt;0 rows&gt; (or 0-length row.names)
+
+  # Analyst is complete  </code></pre>
 </div>
 </div>
 <div id="find-and-replace-incorrect-and-missing-values-in-field" class="section level2">
 <h2>Find and replace incorrect and missing values in <code>Field</code></h2>
-<pre class="r"><code>unique(myXl$Field)</code></pre>
-<pre><code>[1] &quot;PISCO&quot; NA      &quot;pisco&quot;</code></pre>
-<pre class="r"><code># we have two additional keywords for the field that have to be corrected.
+<pre class="r"><code>unique(myXl$Field)
+#:&gt; [1] &quot;PISCO&quot; NA      &quot;pisco&quot;
+# we have two additional keywords for the field that have to be corrected.
 # let's find out what indices they have</code></pre>
 <pre class="r"><code># verify for bad names in field
 indices &lt;- grep(&quot;[^PISCO]&quot;, myXl$Field)      # which means those which are not named like PISCO
 result &lt;-  grep(&quot;[^PISCO]&quot;, myXl$Field, value = TRUE)
 df1 &lt;- data.frame(indices, result)
-df1</code></pre>
-<pre><code>  indices result
-1      12  pisco
-2      27  pisco</code></pre>
+df1
+#:&gt;   indices result
+#:&gt; 1      12  pisco
+#:&gt; 2      27  pisco</code></pre>
 <pre class="r"><code># which row index has NAs in it
 indices  &lt;- which(is.na(myXl$Field))
 result   &lt;- myXl$Field[indices]
 df2      &lt;- data.frame(indices, result)
-df2</code></pre>
-<pre><code>  indices result
-1       7   &lt;NA&gt;</code></pre>
+df2
+#:&gt;   indices result
+#:&gt; 1       7   &lt;NA&gt;</code></pre>
 <pre class="r"><code># combine both data frames
-rbind(df1, df2)</code></pre>
-<pre><code>  indices result
-1      12  pisco
-2      27  pisco
-3       7   &lt;NA&gt;</code></pre>
+rbind(df1, df2)
+#:&gt;   indices result
+#:&gt; 1      12  pisco
+#:&gt; 2      27  pisco
+#:&gt; 3       7   &lt;NA&gt;</code></pre>
 <pre class="r"><code># make the correction
 myXl$Field[c(7,12,27)] &lt;- &quot;PISCO&quot;
 
 # verify for bad names in field
-  grep(&quot;[^PISCO]&quot;, myXl$Field)    # which means those which are not named like PISCO</code></pre>
-<pre><code>integer(0)</code></pre>
-<pre class="r"><code># which row index has NAs in it
-  which(is.na(myXl$Field))</code></pre>
-<pre><code>integer(0)</code></pre>
-<pre class="r"><code># it has been fixed now  </code></pre>
+  grep(&quot;[^PISCO]&quot;, myXl$Field)    # which means those which are not named like PISCO
+#:&gt; integer(0)
+  
+# which row index has NAs in it
+  which(is.na(myXl$Field))
+#:&gt; integer(0)
+  
+# it has been fixed now  </code></pre>
 </div>
 <div id="add-a-column-for-the-completion-type" class="section level2">
 <h2>Add a column for the <code>Completion</code> type</h2>
@@ -608,47 +614,47 @@ myXl$Field[c(7,12,27)] &lt;- &quot;PISCO&quot;
 
 substr(x, start, end)  extract/replace a string from start to end</code></pre>
 <pre class="r"><code># extract the last two characters of &quot;Wellname&quot;&quot;
-  substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))</code></pre>
-<pre><code>  [1] &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
- [15] &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot;
- [29] &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
- [43] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
- [57] &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot;
- [71] &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot;
- [85] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
- [99] &quot;TS&quot; &quot;TS&quot;</code></pre>
+  substr(myXl$Wellname, nchar(myXl$Wellname)-1, nchar(myXl$Wellname))
+#:&gt;   [1] &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [15] &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot;
+#:&gt;  [29] &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
+#:&gt;  [43] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
+#:&gt;  [57] &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot;
+#:&gt;  [71] &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [85] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [99] &quot;TS&quot; &quot;TS&quot;</code></pre>
 <pre class="r"><code># assign the completion type to a new column
   myXl$Completion &lt;- substr(myXl$Wellname, 
                             nchar(myXl$Wellname)-1, 
                             nchar(myXl$Wellname))
-  myXl$Completion</code></pre>
-<pre><code>  [1] &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
- [15] &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot;
- [29] &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
- [43] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
- [57] &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot;
- [71] &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot;
- [85] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
- [99] &quot;TS&quot; &quot;TS&quot;</code></pre>
+  myXl$Completion
+#:&gt;   [1] &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [15] &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot;
+#:&gt;  [29] &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
+#:&gt;  [43] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot;
+#:&gt;  [57] &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot;
+#:&gt;  [71] &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;TS&quot; &quot;LS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [85] &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot; &quot;TS&quot; &quot;SS&quot; &quot;LS&quot; &quot;LS&quot; &quot;SS&quot; &quot;TS&quot; &quot;SS&quot; &quot;SS&quot; &quot;LS&quot;
+#:&gt;  [99] &quot;TS&quot; &quot;TS&quot;</code></pre>
 </div>
 <div id="replace-values-in-location" class="section level2">
 <h2>Replace values in <code>Location</code></h2>
-<pre class="r"><code>myXl$Location</code></pre>
-<pre><code>  [1] &quot;M005-TS&quot; &quot;M007-TS&quot; &quot;M004-LS&quot; &quot;M008-TS&quot; &quot;M010-SS&quot; &quot;M006-TS&quot; &quot;M016-LS&quot;
-  [8] &quot;M018-LS&quot; &quot;M021-LS&quot; &quot;M017-LS&quot; &quot;M030-SS&quot; &quot;M027-SS&quot; &quot;M016-SS&quot; &quot;M020-LS&quot;
- [15] &quot;M028-TS&quot; &quot;M015-LS&quot; &quot;M018-SS&quot; &quot;M015-SS&quot; NA        &quot;M012-TS&quot; &quot;Q007-LS&quot;
- [22] &quot;Q001-SS&quot; &quot;Q005-SS&quot; &quot;Q011-SS&quot; &quot;Q002-SS&quot; &quot;Q002-LS&quot; &quot;Q003-LS&quot; &quot;Q004-SS&quot;
- [29] &quot;Q009-SS&quot; &quot;Q019-LS&quot; &quot;Q032-SS&quot; &quot;Q028-LS&quot; &quot;Q028-SS&quot; &quot;Q029-LS&quot; &quot;Q032-LS&quot;
- [36] &quot;Q024-TS&quot; &quot;Q018-LS&quot; &quot;Q017-LS&quot; &quot;Q013-SS&quot; &quot;Q014-LS&quot; &quot;Q017-SS&quot; &quot;Q014-SS&quot;
- [43] &quot;Q018-SS&quot; &quot;Q012-TS&quot; &quot;R009-SS&quot; &quot;R015-LS&quot; &quot;R019-SS&quot; &quot;R019-LS&quot; &quot;R020-SS&quot;
- [50] &quot;R013-TS&quot; &quot;R012-LS&quot; &quot;R012-SS&quot; &quot;R018-SS&quot; &quot;R018-LS&quot; &quot;R015-SS&quot; &quot;R020-SS&quot;
- [57] &quot;R004-LS&quot; &quot;R001-SS&quot; &quot;R003-TS&quot; &quot;R006-SS&quot; &quot;R007-LS&quot; &quot;R001-LS&quot; &quot;R007-SS&quot;
- [64] &quot;R002-SS&quot; &quot;R029-TS&quot; &quot;R027-LS&quot; &quot;R025-SS&quot; &quot;R023-SS&quot; &quot;R022-TS&quot; &quot;R021-SS&quot;
- [71] &quot;R023-LS&quot; &quot;R027-SS&quot; &quot;S008-LS&quot; &quot;S004-LS&quot; &quot;S027-TS&quot; &quot;S019-SS&quot; &quot;S007-LS&quot;
- [78] &quot;S011-SS&quot; &quot;S016-LS&quot; &quot;S002-TS&quot; &quot;S002-TS&quot; &quot;S019-LS&quot; &quot;S030-SS&quot; &quot;S018-LS&quot;
- [85] &quot;S026-SS&quot; &quot;S029-TS&quot; &quot;S018-SS&quot; &quot;S013-SS&quot; &quot;S015-LS&quot; &quot;S031-TS&quot; &quot;S032-SS&quot;
- [92] &quot;S030-LS&quot; &quot;S032-LS&quot; &quot;S006-SS&quot; &quot;S021-TS&quot; &quot;S016-SS&quot; &quot;S015-SS&quot; &quot;S012-LS&quot;
- [99] &quot;M001-TS&quot; &quot;M026-TS&quot;</code></pre>
+<pre class="r"><code>myXl$Location
+#:&gt;   [1] &quot;M005-TS&quot; &quot;M007-TS&quot; &quot;M004-LS&quot; &quot;M008-TS&quot; &quot;M010-SS&quot; &quot;M006-TS&quot; &quot;M016-LS&quot;
+#:&gt;   [8] &quot;M018-LS&quot; &quot;M021-LS&quot; &quot;M017-LS&quot; &quot;M030-SS&quot; &quot;M027-SS&quot; &quot;M016-SS&quot; &quot;M020-LS&quot;
+#:&gt;  [15] &quot;M028-TS&quot; &quot;M015-LS&quot; &quot;M018-SS&quot; &quot;M015-SS&quot; NA        &quot;M012-TS&quot; &quot;Q007-LS&quot;
+#:&gt;  [22] &quot;Q001-SS&quot; &quot;Q005-SS&quot; &quot;Q011-SS&quot; &quot;Q002-SS&quot; &quot;Q002-LS&quot; &quot;Q003-LS&quot; &quot;Q004-SS&quot;
+#:&gt;  [29] &quot;Q009-SS&quot; &quot;Q019-LS&quot; &quot;Q032-SS&quot; &quot;Q028-LS&quot; &quot;Q028-SS&quot; &quot;Q029-LS&quot; &quot;Q032-LS&quot;
+#:&gt;  [36] &quot;Q024-TS&quot; &quot;Q018-LS&quot; &quot;Q017-LS&quot; &quot;Q013-SS&quot; &quot;Q014-LS&quot; &quot;Q017-SS&quot; &quot;Q014-SS&quot;
+#:&gt;  [43] &quot;Q018-SS&quot; &quot;Q012-TS&quot; &quot;R009-SS&quot; &quot;R015-LS&quot; &quot;R019-SS&quot; &quot;R019-LS&quot; &quot;R020-SS&quot;
+#:&gt;  [50] &quot;R013-TS&quot; &quot;R012-LS&quot; &quot;R012-SS&quot; &quot;R018-SS&quot; &quot;R018-LS&quot; &quot;R015-SS&quot; &quot;R020-SS&quot;
+#:&gt;  [57] &quot;R004-LS&quot; &quot;R001-SS&quot; &quot;R003-TS&quot; &quot;R006-SS&quot; &quot;R007-LS&quot; &quot;R001-LS&quot; &quot;R007-SS&quot;
+#:&gt;  [64] &quot;R002-SS&quot; &quot;R029-TS&quot; &quot;R027-LS&quot; &quot;R025-SS&quot; &quot;R023-SS&quot; &quot;R022-TS&quot; &quot;R021-SS&quot;
+#:&gt;  [71] &quot;R023-LS&quot; &quot;R027-SS&quot; &quot;S008-LS&quot; &quot;S004-LS&quot; &quot;S027-TS&quot; &quot;S019-SS&quot; &quot;S007-LS&quot;
+#:&gt;  [78] &quot;S011-SS&quot; &quot;S016-LS&quot; &quot;S002-TS&quot; &quot;S002-TS&quot; &quot;S019-LS&quot; &quot;S030-SS&quot; &quot;S018-LS&quot;
+#:&gt;  [85] &quot;S026-SS&quot; &quot;S029-TS&quot; &quot;S018-SS&quot; &quot;S013-SS&quot; &quot;S015-LS&quot; &quot;S031-TS&quot; &quot;S032-SS&quot;
+#:&gt;  [92] &quot;S030-LS&quot; &quot;S032-LS&quot; &quot;S006-SS&quot; &quot;S021-TS&quot; &quot;S016-SS&quot; &quot;S015-SS&quot; &quot;S012-LS&quot;
+#:&gt;  [99] &quot;M001-TS&quot; &quot;M026-TS&quot;</code></pre>
 <p>Observe that in this example we are using the pattern <code>[MQRS][0-9]{3}-[LTS]S</code> together with the parameter <code>invert=TRUE</code> in <code>grep</code>. This means that the pattern will be negated when <code>invert</code> is <code>TRUE</code>.</p>
 <pre class="r"><code># we can test it by not following pattern or those which are NA
 pattern &lt;- &quot;[MQRS][0-9]{3}-[LTS]S&quot;
@@ -659,41 +665,42 @@ myXl$Location[indices]
 
 data.frame(indices, myXl$Wellname[indices], myXl$Location[indices])
 # there is one non-compliant index 
-# which matches what we see above</code></pre>
-<pre><code>[1] NA
-  indices myXl.Wellname.indices. myXl.Location.indices.
-1      19           PSCO-M002-LS                   &lt;NA&gt;</code></pre>
+# which matches what we see above
+#:&gt; [1] NA
+#:&gt;   indices myXl.Wellname.indices. myXl.Location.indices.
+#:&gt; 1      19           PSCO-M002-LS                   &lt;NA&gt;</code></pre>
 <p>If we would like instead is the regex for the negated pattern it would have to look like this:</p>
 <p><img src="data:image/jpeg;base64,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/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj29b/AJ+T/wDA5f5h9Vof8+qf/gEf8g/s20/54xf9+0/wo9vW/wCfk/8AwOX+YfVaH/Pqn/4BH/IP7NtP+eMX/ftP8KPb1v8An5P/AMDl/mH1Wh/z6p/+AR/yD+zbT/njF/37T/Cj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+/L/AN9J/wDEV7H9pVv5YfdL/wCSPnv7IofzVPvj/wDIB/wilp/fl/76T/4ij+0q38sPul/8kH9kUP5qn3x/+QD/AIRS0/vy/wDfSf8AxFH9pVv5YfdL/wCSD+yKH81T74//ACAf8Ipaf35f++k/+Io/tKt/LD7pf/JB/ZFD+ap98f8A5AP+EUtP78v/AH0n/wARR/aVb+WH3S/+SD+yKH81T74//IB/wilp/fl/76T/AOIo/tKt/LD7pf8AyQf2RQ/mqffH/wCQD/hFLT+/L/30n/xFH9pVv5YfdL/5IP7IofzVPvj/APIB/wAIpaf35f8AvpP/AIij+0q38sPul/8AJB/ZFD+ap98f/kA/4RS0/vy/99J/8RR/aVb+WH3S/wDkg/sih/NU++P/AMgaem6TFpW/yS58zbncQfu5xjCr/eOetcdfEzxPLzqK5b2smt7d2+x6GGwdPB83snJ81r8zT+G9rWS7s1K4z0QoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgD/9k=" width="200px" style="display: block; margin: auto;" /></p>
 <p>You see that the words matched are those which do not match the correct pattern.</p>
-<pre class="r"><code>myXl$Location[indices]  # before</code></pre>
-<pre><code>[1] NA</code></pre>
-<pre class="r"><code># assign the extracted string to &quot;Location&quot;
+<pre class="r"><code>myXl$Location[indices]  # before
+#:&gt; [1] NA
+
+# assign the extracted string to &quot;Location&quot;
   myXl$Location[indices] &lt;- substr(myXl$Wellname[indices], 
                                   nchar(myXl$Wellname[indices])-6, 
                                   nchar(myXl$Wellname[indices]))
-myXl$Location[indices]  # after</code></pre>
-<pre><code>[1] &quot;M002-LS&quot;</code></pre>
-<pre class="r"><code>myXl$Location</code></pre>
-<pre><code>  [1] &quot;M005-TS&quot; &quot;M007-TS&quot; &quot;M004-LS&quot; &quot;M008-TS&quot; &quot;M010-SS&quot; &quot;M006-TS&quot; &quot;M016-LS&quot;
-  [8] &quot;M018-LS&quot; &quot;M021-LS&quot; &quot;M017-LS&quot; &quot;M030-SS&quot; &quot;M027-SS&quot; &quot;M016-SS&quot; &quot;M020-LS&quot;
- [15] &quot;M028-TS&quot; &quot;M015-LS&quot; &quot;M018-SS&quot; &quot;M015-SS&quot; &quot;M002-LS&quot; &quot;M012-TS&quot; &quot;Q007-LS&quot;
- [22] &quot;Q001-SS&quot; &quot;Q005-SS&quot; &quot;Q011-SS&quot; &quot;Q002-SS&quot; &quot;Q002-LS&quot; &quot;Q003-LS&quot; &quot;Q004-SS&quot;
- [29] &quot;Q009-SS&quot; &quot;Q019-LS&quot; &quot;Q032-SS&quot; &quot;Q028-LS&quot; &quot;Q028-SS&quot; &quot;Q029-LS&quot; &quot;Q032-LS&quot;
- [36] &quot;Q024-TS&quot; &quot;Q018-LS&quot; &quot;Q017-LS&quot; &quot;Q013-SS&quot; &quot;Q014-LS&quot; &quot;Q017-SS&quot; &quot;Q014-SS&quot;
- [43] &quot;Q018-SS&quot; &quot;Q012-TS&quot; &quot;R009-SS&quot; &quot;R015-LS&quot; &quot;R019-SS&quot; &quot;R019-LS&quot; &quot;R020-SS&quot;
- [50] &quot;R013-TS&quot; &quot;R012-LS&quot; &quot;R012-SS&quot; &quot;R018-SS&quot; &quot;R018-LS&quot; &quot;R015-SS&quot; &quot;R020-SS&quot;
- [57] &quot;R004-LS&quot; &quot;R001-SS&quot; &quot;R003-TS&quot; &quot;R006-SS&quot; &quot;R007-LS&quot; &quot;R001-LS&quot; &quot;R007-SS&quot;
- [64] &quot;R002-SS&quot; &quot;R029-TS&quot; &quot;R027-LS&quot; &quot;R025-SS&quot; &quot;R023-SS&quot; &quot;R022-TS&quot; &quot;R021-SS&quot;
- [71] &quot;R023-LS&quot; &quot;R027-SS&quot; &quot;S008-LS&quot; &quot;S004-LS&quot; &quot;S027-TS&quot; &quot;S019-SS&quot; &quot;S007-LS&quot;
- [78] &quot;S011-SS&quot; &quot;S016-LS&quot; &quot;S002-TS&quot; &quot;S002-TS&quot; &quot;S019-LS&quot; &quot;S030-SS&quot; &quot;S018-LS&quot;
- [85] &quot;S026-SS&quot; &quot;S029-TS&quot; &quot;S018-SS&quot; &quot;S013-SS&quot; &quot;S015-LS&quot; &quot;S031-TS&quot; &quot;S032-SS&quot;
- [92] &quot;S030-LS&quot; &quot;S032-LS&quot; &quot;S006-SS&quot; &quot;S021-TS&quot; &quot;S016-SS&quot; &quot;S015-SS&quot; &quot;S012-LS&quot;
- [99] &quot;M001-TS&quot; &quot;M026-TS&quot;</code></pre>
+myXl$Location[indices]  # after
+#:&gt; [1] &quot;M002-LS&quot;
+myXl$Location
+#:&gt;   [1] &quot;M005-TS&quot; &quot;M007-TS&quot; &quot;M004-LS&quot; &quot;M008-TS&quot; &quot;M010-SS&quot; &quot;M006-TS&quot; &quot;M016-LS&quot;
+#:&gt;   [8] &quot;M018-LS&quot; &quot;M021-LS&quot; &quot;M017-LS&quot; &quot;M030-SS&quot; &quot;M027-SS&quot; &quot;M016-SS&quot; &quot;M020-LS&quot;
+#:&gt;  [15] &quot;M028-TS&quot; &quot;M015-LS&quot; &quot;M018-SS&quot; &quot;M015-SS&quot; &quot;M002-LS&quot; &quot;M012-TS&quot; &quot;Q007-LS&quot;
+#:&gt;  [22] &quot;Q001-SS&quot; &quot;Q005-SS&quot; &quot;Q011-SS&quot; &quot;Q002-SS&quot; &quot;Q002-LS&quot; &quot;Q003-LS&quot; &quot;Q004-SS&quot;
+#:&gt;  [29] &quot;Q009-SS&quot; &quot;Q019-LS&quot; &quot;Q032-SS&quot; &quot;Q028-LS&quot; &quot;Q028-SS&quot; &quot;Q029-LS&quot; &quot;Q032-LS&quot;
+#:&gt;  [36] &quot;Q024-TS&quot; &quot;Q018-LS&quot; &quot;Q017-LS&quot; &quot;Q013-SS&quot; &quot;Q014-LS&quot; &quot;Q017-SS&quot; &quot;Q014-SS&quot;
+#:&gt;  [43] &quot;Q018-SS&quot; &quot;Q012-TS&quot; &quot;R009-SS&quot; &quot;R015-LS&quot; &quot;R019-SS&quot; &quot;R019-LS&quot; &quot;R020-SS&quot;
+#:&gt;  [50] &quot;R013-TS&quot; &quot;R012-LS&quot; &quot;R012-SS&quot; &quot;R018-SS&quot; &quot;R018-LS&quot; &quot;R015-SS&quot; &quot;R020-SS&quot;
+#:&gt;  [57] &quot;R004-LS&quot; &quot;R001-SS&quot; &quot;R003-TS&quot; &quot;R006-SS&quot; &quot;R007-LS&quot; &quot;R001-LS&quot; &quot;R007-SS&quot;
+#:&gt;  [64] &quot;R002-SS&quot; &quot;R029-TS&quot; &quot;R027-LS&quot; &quot;R025-SS&quot; &quot;R023-SS&quot; &quot;R022-TS&quot; &quot;R021-SS&quot;
+#:&gt;  [71] &quot;R023-LS&quot; &quot;R027-SS&quot; &quot;S008-LS&quot; &quot;S004-LS&quot; &quot;S027-TS&quot; &quot;S019-SS&quot; &quot;S007-LS&quot;
+#:&gt;  [78] &quot;S011-SS&quot; &quot;S016-LS&quot; &quot;S002-TS&quot; &quot;S002-TS&quot; &quot;S019-LS&quot; &quot;S030-SS&quot; &quot;S018-LS&quot;
+#:&gt;  [85] &quot;S026-SS&quot; &quot;S029-TS&quot; &quot;S018-SS&quot; &quot;S013-SS&quot; &quot;S015-LS&quot; &quot;S031-TS&quot; &quot;S032-SS&quot;
+#:&gt;  [92] &quot;S030-LS&quot; &quot;S032-LS&quot; &quot;S006-SS&quot; &quot;S021-TS&quot; &quot;S016-SS&quot; &quot;S015-SS&quot; &quot;S012-LS&quot;
+#:&gt;  [99] &quot;M001-TS&quot; &quot;M026-TS&quot;</code></pre>
 <pre class="r"><code># test that &quot;Location&quot;&quot; follows the pattern
-grep(pattern, myXl$Location, invert = TRUE)</code></pre>
-<pre><code>integer(0)</code></pre>
-<pre class="r"><code># we are done here</code></pre>
+grep(pattern, myXl$Location, invert = TRUE)
+#:&gt; integer(0)
+# we are done here</code></pre>
 </div>
 <div id="replace-na-values-in-platform" class="section level2">
 <h2>Replace NA values in <code>Platform</code></h2>
@@ -703,11 +710,11 @@ pattern &lt;- &quot;[MQRS]&quot;
 
 indices &lt;- grep(pattern, x, invert = TRUE)
 values  &lt;- grep(pattern, x, invert = TRUE, value = TRUE)
-data.frame(indices, values, myXl$Wellname[indices])</code></pre>
-<pre><code>  indices values myXl.Wellname.indices.
-1      99   &lt;NA&gt;           PSCO-M001-TS
-2     100   &lt;NA&gt;           PSCO-M026-TS</code></pre>
-<pre class="r"><code># only two not following
+data.frame(indices, values, myXl$Wellname[indices])
+#:&gt;   indices values myXl.Wellname.indices.
+#:&gt; 1      99   &lt;NA&gt;           PSCO-M001-TS
+#:&gt; 2     100   &lt;NA&gt;           PSCO-M026-TS
+# only two not following
 # since the well name is already corrected, let's use it</code></pre>
 <p>Again, if instead of using <code>invert=TRUE</code> in grep we coul have used the negation of the pattern which is:</p>
 <p><img src="data:image/jpeg;base64,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AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8g/s27/AOeMv/ft/wDCj29H/n5D/wADj/mH1Wv/AM+qn/gEv8j1uvhT9NCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA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Va9XE0L0XWT54xnKz5rc6ulFuE5a8rv2bdjV/sxEd54liSeVQrShBvbaPl3EAMwXspb2GK4ZKrKHslNpK/Km24xk+qjtvq9r9ThftHGNKUm6cW3GDlLlTe9lsm+rW5S0HQBocRTeZpZHeaaVuGkkblmI5CjAAVQcAAdTknOlR9hCFKO0fvcm7yk+8pSbbfy2SOShhnQcpuXNKc3OUnpfRJJLZRjFJRitEl5nRY7V17Ho/oFHkAUbBsHTtR+SAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAKn2+2/56x/8Afa/407MA+323/PWP/vtf8aLMA+323/PWP/vtf8aLMA+323/PWP8A77X/ABoswD7fbf8APWP/AL7X/GizAPt9t/z1j/77X/GizAPt9t/z1j/77X/GizAPt9t/z1j/AO+1/wAaLMA+323/AD1j/wC+1/xoswD7fbf89Y/++1/xoswD7fbf89Y/++1/xoswD7fbf89Y/wDvtf8AGizAPt9t/wA9Y/8Avtf8aLMA+323/PWP/vtf8aLMA+323/PWP/vtf8aLMA+323/PWP8A77X/ABoswD7fbf8APWP/AL7X/GizAPt9t/z1j/77X/GizAPt9t/z1j/77X/GizAPt9t/z1j/AO+1/wAaLMA+323/AD1j/wC+1/xoswD7fbf89Y/++1/xoswD7fbf89Y/++1/xoswD7fbf89Y/wDvtf8AGizAPt9t/wA9Y/8Avtf8aLMA+323/PWP/vtf8aLMA+323/PWP/vtf8aLMA+323/PWP8A77X/ABoswD7fbf8APWP/AL7X/GizAPt9t/z1j/77X/GizAPt9t/z1j/77X/GizAPt9t/z1j/AO+1/wAaLMA+323/AD1j/wC+1/xoswD7fbf89Y/++1/xoswD7fbf89Y/++1/xoswD7fbf89Y/wDvtf8AGizAPt9t/wA9Y/8Avtf8aLMA+323/PWP/vtf8aLMDzStSQoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAMu/wBc0/SWEd9dW9q7DcqzTRxEjOMgOykjPGRxmldX5bq63XXX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AFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAfPih5dHttPYExRXVtfc9AhvIkRc9Mm5Msg4+URjvg0AdVqk0uoX1z5j6ijxXD2tm1k8629qYrRLnz71I3SGQSyNtUXaTRHCRqg3OWAF1HWZdVgs3uVvfs76aL+aDTmniu55WaBFjja3kinCRmRnZI5V3fLvJUbWAN7SIZ9Y0680uS5uoTBcTWiXcbKt0IgEdCJHST96iP5ZlZS5K7yfMJagC14AaVtCtPPlluZFR0Ms7mSV9krqGkduWYgDJP6UAdhQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAGAPDlsNPTSt0nkxNGwbK78xzLMuTs24LKAcKPlyBg80AU9S8JRX88kyXN1aJdqFu4bdoljugF2DzDJDJLG3l/uzJay28jJgM5KIVALepeHYr0QtbyzafPaKUhntfJ3pGwUNFtnhnhaNgq5V4m2lVZCrAGgBI/D4tLH7DY3NzZsXMj3Mf2eS4kkdi0jubm3nhJlYktiEBeFjCKAAAReGvDbeGoTbLe3d7CB+7S5FoBFlmdihtrS3clyxz5jSAYG0LzkA6agAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA+cNJs7SaSG3ttJFrqtzqd5JDrDJZRgiC+lkn2zxTPes7QBohDJEgmUurfug7BAfR9MAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgDlm8I2v2NLJZJo/IumvIplZPOjmaZ5iVJjKbSZHjKshzExVskk0AdTQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQB59/wAJXd/3Iv8Avl//AIuvqv7No/zT++P/AMifEf2vX/lp/dL/AOTO5tJTcQRytgNIiscdMsoJx1459a+aqxVOc4LaMpJX3sm0fYUZurShUla8oRk7bXaTdvIsVkbhQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAfG9vObbSktH4Saa3nhOepF9GkyexDbZMd/NOPuk19any01B7Nxa/wDA0pL79fmfCNXqua3jGUZf+C24v7rr5eZ9d6b/AMekP/XKP/0AV81X/jVP8c//AEpn2GF/gUv+vcP/AElF2uc6woAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAPnWXwzayWkNkWkCW0qyxuCu/csnmFSdm0q2SrDaCVPBDAMPunRi4qGtou6el979tns/LzPzFV5KcqlleScWtbaq3e91utd/LQ9903/AI9If+uUf/oAr42v/Gqf45/+lM/Q8L/Apf8AXuH/AKSi7XOdYUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAFL+zbT/njF/wB+0/wro9vW/wCfk/8AwOX+ZyfVaH/Pqn/4BH/ItqgjAVQFVRgAcAAdAB2ArBtttt3b1be7Z0pKCUYpJJWSWiSWyS7DqRQUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAHjUemwaFqBm8Q6aJpHu99vr0OySQebK5hiuHUpe2gRSlvhFksmRgjyIjtHQB7LQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFACHmgDj28HrM2y5vb65st4k+xTSQvDuVhIoaY2/251WQBwkl26H7jKYgIwAdjQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUARyuY0ZgMlVJA9cDOKAPGU0+3t9Ag8UoinWX+z3LXeAbiQzTR77cyn5zbsjmFbct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" width="200px" style="display: block; margin: auto;" /></p>
@@ -717,9 +724,9 @@ data.frame(indices, values, myXl$Wellname[indices])</code></pre>
                         nchar(myXl$Wellname)-6, nchar(myXl$Wellname)-6)
 
 # verify which indices do not comply the platform name
-  grep(&quot;[MQRS]&quot;, myXl$Platform, invert = TRUE)</code></pre>
-<pre><code>integer(0)</code></pre>
-<pre class="r"><code># we are done here</code></pre>
+  grep(&quot;[MQRS]&quot;, myXl$Platform, invert = TRUE)
+#:&gt; integer(0)
+# we are done here</code></pre>
 </div>
 
 

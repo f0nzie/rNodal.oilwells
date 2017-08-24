@@ -16,7 +16,7 @@ output:
 knitr::opts_chunk$set(echo=T, comment="#:>", error=T, warning=F, message = F, fig.align = 'center', collapse=TRUE)
 ```
 
-
+## Motivation
 This section is about getting familiar with our data. We will be using functions to know the size of our table or data frame, the names of the columns or variables, the staructure of the data and the type of data for each of the variables or colummns.
 
 ## Read the `raw data` again

@@ -4,6 +4,15 @@ output: html_notebook
 ---
 
 
+```{r}
+library(Hmisc)
+```
+
+
+
+```{r}
+describe(myXl)
+```
 
 
 

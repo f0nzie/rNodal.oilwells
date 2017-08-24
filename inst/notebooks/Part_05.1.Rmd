@@ -1,25 +1,25 @@
 ---
-output: github_document
+title: "5.1 Data Introspection"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    keep_md: yes
+    toc: yes
 ---
+
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
+```{r setup, include=F, error=T, message=F, warning=F}
+knitr::opts_chunk$set(echo=T, comment="#:>", error=T, warning=F, message = F, fig.align = 'center', collapse=TRUE)
 ```
 
-# Transforming Excel well raw data into datasets
-
-## 5.1 Data Introspection
 
 This section is about getting familiar with our data. We will be using functions to know the size of our table or data frame, the names of the columns or variables, the staructure of the data and the type of data for each of the variables or colummns.
 
-### Read the raw data again
+## Read the `raw data` again
 
 ```{r}
 # load the library xlsx
@@ -31,11 +31,11 @@ myXl <- read.xlsx("../extdata/oilfield_100w_raw_data.xlsx",
 
 ```
 
-### Printing the head
+## Printing the `head` of the dataframe
 
 Let's print 6 rows of data with the function head(). You will see a long printing. We will fix this in a minute. Read on.
 
-```{r rows.print=25}
+```{r rows.print=10}
 # the function head() prints the first 6 rows
 # to print the last 6 rows use tail()
 print(head(myXl))
@@ -66,7 +66,7 @@ tail(myXl)
 
 Now it looks much better.
 
-### dimensions of the data frame: `dim`
+## dimensions of the data frame: `dim`
 Let's use some R functions to find out more about our data.
 
 ```{r}
@@ -76,14 +76,14 @@ dim(myXl)
 
 Our table has `r dim(myXl)[1]` rows and `r dim(myXl)[2]` columns.
 
-### names of the columns: `names`
+## names of the columns: `names`
 These are the names of the variables or columns:
 
 ```{r}
 names(myXl)
 ```
 
-### summary of the data: `summary`
+## summary of the data: `summary`
 
 ```{r}
 # A summary of all the variables.
@@ -92,7 +92,7 @@ summary(myXl)
 ```
 
 
-### structure of the data: `str`
+## structure of the data: `str`
 
 ```{r}
 # show the data type structure of the table
@@ -105,7 +105,7 @@ class(myXl)
 ```
 
 
-### data types: `typeof`
+## data types: `typeof`
 Let's find out what type of variable we've got in our table:
 
 ```{r}
@@ -114,7 +114,7 @@ typeof(myXl$Fluid)
 typeof(myXl$IPR_RESTEMP)
 ```
 
-### using `sapply`, `length`, `sort`
+## using `sapply`, `length`, `sort`
 
 We can do all the column names in one shot with `sapply`.
 
@@ -126,20 +126,11 @@ sort(dataTypes)
 
 ```
 
-### An inventory of the kind of data we have: `table`
+## An inventory of the kind of data we have: `table`
 
 ```{r}
 table(dataTypes)
 ```
 
 
-```{r}
-library(Hmisc)
-```
-
-
-
-```{r}
-describe(myXl)
-```
 
